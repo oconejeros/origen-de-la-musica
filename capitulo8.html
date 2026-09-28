@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Origen de la Música · Cap. 8</title>
+</head>
+<body>
+<script src="motor.js"></script>
+<script>
+/* ===================== CAPÍTULO 8 · LA ORQUESTA Y EL PIANO ===================== */
+const NOB={skin:'#f0c8a8',shade:'#c09878',hair:'#e8e8ec',cloth:'#3a5a8a',clothL:'#e8c060',legs:'#e8e0cc',feet:'#1a1a1a'};
+const NOB2={skin:'#f0c8a8',shade:'#c09878',hair:'#e8e8ec',cloth:'#b0507a',clothL:'#f0d0e0'};
+const MOZ={skin:'#f0c8a8',shade:'#c09878',hair:'#f0f0f4',cloth:'#b02a2a',clothL:'#e8c060',legs:'#e8e0cc',feet:'#1a1a1a'};
+const CRIS={skin:'#e0b090',shade:'#b08060',hair:'#8a8a8a',cloth:'#4a3a2a',clothL:'#e8e0cc',legs:'#2a2a2a'};
+const LVB={skin:'#e8b890',shade:'#b88860',hair:'#5a5a5a',cloth:'#2a4a3a',clothL:'#e8e0cc',legs:'#1a1a1a'};
+const SING={skin:'#f0c8a8',shade:'#c09878',hair:'#3a2210',cloth:'#e8e0f0',clothL:'#8a5aa8'};
+const CHO={skin:'#e8b890',shade:'#b88860',hair:'#2a1a10',cloth:'#1a1a22',clothL:'#e8e0cc',legs:'#1a1a22'};
+const MUS={skin:'#e0b090',shade:'#b08060',hair:'#3a2a1a',cloth:'#1a1a22',clothL:'#e8e0cc',legs:'#1a1a22'};
+
+srand(88);
+const NIGHT=['#070818','#0c0f28','#141838','#1c2044','#262a50'],DUSK=['#1a2250','#3a3a70','#6a4a78','#a05a70','#c87a6a'];
+function hall(t,cols=DUSK,night=false){
+  sky(cols);if(night){stars(t,30);moon(170,12);}
+  R(30,30,132,62,'#c8bca8');R(30,30,132,2,'#e8dcc8');for(let i=0;i<12;i++)R(30+i*5.5,30-i,132-i*11,1,'#b8ac98');
+  for(let k=0;k<8;k++){R(40+k*16,40,5,48,'#e8e0d0');R(44+k*16,40,1,48,'#b8ac98');}
+  for(let k=0;k<7;k++){R(48+k*16,48,6,10,'#ffcf70');R(48+k*16,66,6,10,'#ffcf70');alpha(.15+.05*Math.sin(t*2+k),()=>oval(51+k*16,60,8,14,'#ffcf70'));}
+  R(28,88,136,4,'#a89c88');R(0,92,W,16,night?'#3a3848':'#6a6470');R(0,92,W,1,'#8a8490');
+  for(let k=0;k<3;k++){const lx=12+k*84;R(lx,70,2,22,'#1a1a1a');oval(lx+1,68,3,3,'#ffe27a');alpha(.2,()=>oval(lx+1,70,10,10,'#ffcf70'));}
+}
+function grand(x,y){
+  R(x,y,82,8,'#101014');oval(x+82,y+4,8,4,'#101014');R(x+2,y+1,78,1,'#2a2a34');
+  R(x+4,y+8,3,22,'#101014');R(x+74,y+8,3,22,'#101014');line(x+2,y,x+72,y-26,'#101014');line(x+2,y-1,x+72,y-27,'#2a2a34');line(x+40,y,x+44,y-14,'#101014');
+  R(x-10,y-2,12,3,'#f0ece0');for(let k=0;k<6;k++)P(x-9+k*2,y-2,'#1a1a1a');R(x-10,y+1,12,3,'#101014');
+}
+function candelabra(x,y,t){R(x,y,2,12,'#c8a040');R(x-5,y,12,2,'#c8a040');for(const dx of [-5,0,5])candle(x+dx,y-5,t+dx);}
+/* ---- escenas ---- */
+function sTitle(st){
+  hall(st);
+  for(let i=0;i<5;i++){const x=((st*9+i*48)%260)-40,m=i%2;person(x,100,1.3,false,{pal:m?NOB2:NOB,wear:m?'dress':'coat',hair:'wig',hat:m?null:'top',hands:[[9,-7],[7,-7]],lift:Math.round(Math.abs(Math.sin(st*5+i)))});}
+}
+/* mecanismo del piano */
+const HITS=[[1,.12],[2.2,.12],[3.4,.12],[5.6,.5],[6.8,.5],[8,.5],[9.8,.12,262],[10.4,.5,330],[11,.12,392],[11.6,.5,523]];
+function sPiano(st){
+  R(0,0,W,H,'#2a1e18');alpha(.3,()=>oval(110,58,100,48,'#6a4a30'));
+  person(4,100,2,false,{pal:CRIS,wear:'coat',hair:'wig',hands:[[20,-10],[10,-8]],blink:(st%3)<.1});
+  let h=null;for(const e of HITS)if(st>=e[0])h=e;
+  const age=h?st-h[0]:9,v=h?h[1]:0,loud=v>.3;
+  const k=age<.06?age/.06:age<.45?1:Math.max(0,1-(age-.45)/.1);
+  const hm=age<.05?age/.05:Math.max(0,1-(age-.05)/.15);
+  R(92,40,94,2,'#5a4a3a');R(96,20,90,20,'#3a2a20');R(96,20,90,1,'#5a3a2a');
+  const amp=age<2?(loud?2.5:1)*Math.exp(-age*2.5):0;
+  for(let x=100;x<=184;x++){const u=(x-100)/84;P(x,43+amp*Math.sin(Math.PI*u)*Math.sin(st*110),'#d8d0c0');}
+  R(100,42,2,4,'#8a8a90');R(182,42,2,4,'#8a8a90');
+  R(160,45-(k>0?4:0),6,5,'#2a2a2a');line(163,50-(k>0?4:0),163,60,'#6a5a4a');
+  const d=Math.round(k*(loud?5:3));
+  line(40,84+d,128,84-d,'#8a6a4a');line(40,85+d,128,85-d,'#6a4a2a');line(40,86+d,128,86-d,'#6a4a2a');R(40,82+d,40,3,'#f0ece0');R(83,86,4,6,'#4a3a2a');
+  const wy=78-d;R(122,wy,16,3,'#7a5a3a');
+  const hy=Math.round(76-(loud?33:33)*hm*(loud?1:.97));line(140,wy,140,hy+5,'#9a7a5a');R(136,hy,9,6,'#c8c0b0');R(136,hy,9,1,'#e8e0d0');
+  if(age<.25&&k>0){R(48,74+d,8,8,'#e0b090');R(50,68+d,4,6,'#e0b090');}
+  if(h)step('p',HITS.indexOf(h),()=>SND.piano(h[2]||262,1.6,v));
+  label(st<5?'PIANO = SUAVE':st<9.5?'FORTE = FUERTE':'PIANO + FORTE',140,6,loud?'#ff8a6a':'#9fd3ff');
+  label('CRISTOFORI, HACIA 1700',96,98,'#ffe27a');
+  txt('MARTILLO',150,70,'#b8a888');txt('CUERDA',134,34,'#b8a888');txt('TECLA',44,92,'#b8a888');
+}
+/* Mozart */
+const MZM=[[523,2],[659,2],[784,2],[659,1],[587,1],[523,2],[494,2],[523,2],[0,2],[587,2],[698,2],[659,2],[587,1],[523,1],[494,2],[392,2],[523,4]];
+function sMozart(st){
+  R(0,0,W,H,'#2a4a3a');for(let x=0;x<W;x+=12)for(let y=0;y<88;y+=12)P(x+6,y+6,'#3a5a4a');R(0,88,W,20,'#5a3a22');for(let x=0;x<W;x+=16)R(x,88,1,20,'#4a2e18');
+  for(const wx of [20,150]){R(wx,20,22,40,'#1a2248');R(wx,20,22,2,'#e8c060');R(wx+10,20,2,40,'#e8c060');R(wx,40,22,2,'#e8c060');}
+  line(96,0,96,10,'#c8a040');R(84,10,24,2,'#c8a040');for(const cx of [84,92,100,106])candle(cx,6,st+cx);
+  // clave/fortepiano
+  R(54,64,62,10,'#8a4a2a');R(54,64,62,1,'#c8804a');R(56,74,3,14,'#6a3a1a');R(111,74,3,14,'#6a3a1a');R(50,62,16,3,'#f0ece0');for(let k=0;k<8;k++)P(51+k*2,62,'#1a1a1a');
+  line(66,64,110,46,'#8a4a2a');
+  const beat=.22,b=Math.floor((st-1)/beat),on=st>1&&st<12.6;
+  person(34,90,1.5,false,{pal:MOZ,wear:'coat',hair:'wig',hands:[[12+(b%2),-15],[10+((b+1)%2),-15]],blink:(st%2.8)<.1});
+  const clap=st>12.3;
+  person(130,90,2,true,{pal:NOB,wear:'coat',hair:'wig',hands:clap?[[12,-14+((st*8|0)%2)*2],[12,-14]]:[[9,-7],[7,-7]]});
+  person(156,90,2,true,{pal:NOB2,wear:'dress',hair:'wig',hands:clap?[[12,-14],[12,-14+((st*8|0)%2)*2]]:[[10,-10],[9,-10]]});
+  if(on){step('al',b,()=>SND.piano([131,196,165,196][b%4]*((Math.floor(b/16)%2)?1.1225:1),.3,.1));
+    let acc=0;for(const [f,d] of MZM){if(b===acc*2&&f)step('m',b,()=>SND.piano(f,d*2*beat,.26));acc+=d;}}
+  if(clap)step('cl',1,()=>SND.applause(1.6,20));
+  notesFrom(60,54,st,.7,2.2,1,1,12.3);
+  label('MOZART, NIÑO PRODIGIO',96,98,'#ffe27a');
+}
+/* orquesta */
+const SECS=[[1,3.6,'CUERDAS'],[3.6,6.1,'MADERAS'],[6.1,8.6,'METALES'],[8.6,10.6,'PERCUSION'],[10.6,13.6,'TODOS: TUTTI!']];
+function sOrch(st){
+  R(0,0,W,H,'#1e1420');for(let x=0;x<W;x+=24){R(x,0,10,60,'#2a1c28');}R(0,60,W,48,'#6a4428');for(let y=62;y<108;y+=6)R(0,y,W,1,'#5a3820');
+  let sec=-1;SECS.forEach((s,i)=>{if(st>=s[0]&&st<s[1])sec=i;});
+  const hi=i=>sec===i||sec===4;
+  const glow=(x,y,w,i)=>{if(hi(i))alpha(.25+.1*Math.sin(st*8),()=>oval(x,y,w,10,'#ffe27a'));};
+  glow(96,56,70,2);for(let k=0;k<6;k++){const x=50+k*16;person(x,60,1,false,{pal:MUS,wear:'coat',hands:[[11,-12],[9,-11]]});const c=k<3?'#e8c050':'#c8c8d0';ring(x+14,50,2.5,c);if(hi(2))P(x+14,50,'#fff');}
+  R(150,54,14,6,'#b8683a');oval(157,54,7,2,'#e8dcc0');R(166,54,14,6,'#b8683a');oval(173,54,7,2,'#e8dcc0');
+  person(160,56,1,false,{pal:MUS,wear:'coat',hands:[[10,sec===3&&(st*10|0)%2?-9:-6],[8,-6]]});if(hi(3))alpha(.4,()=>ring(165,53,6+(st*20)%6,'#ffe27a'));
+  glow(96,72,60,1);for(let k=0;k<5;k++){const x=62+k*16;person(x,76,1.1,false,{pal:MUS,wear:'coat',hands:[[16,-14],[13,-13]]});const [a,b2]=hw(x,76,1.1,false,10,-15);line(a,b2,a+8,b2+4,'#2a2a2a');}
+  glow(60,90,50,0);glow(140,90,50,0);
+  for(let k=0;k<5;k++){const x=6+k*18;person(x,96,1.2,false,{pal:MUS,wear:'coat',hands:[[15,-15],[10+(hi(0)?Math.sin(st*8+k)*3:0),-11]]});const [vx,vy]=hw(x,96,1.2,false,12,-16);oval(vx,vy,2,1.5,'#a0522d');}
+  for(let k=0;k<4;k++){const x=120+k*18;person(x,96,1.2,true,{pal:MUS,wear:'coat',hands:[[12,-9],[6+(hi(0)?Math.sin(st*8+k)*3:0),-9]]});const [cx,cy]=hw(x,96,1.2,true,12,-6);oval(cx,cy,3,5,'#8a4020');line(cx,cy-5,cx,cy-12,'#1a1a1a');}
+  const bt=Math.sin(st*Math.PI*2*1.1);
+  person(92,104,1.6,false,{pal:CHO,wear:'coat',hands:[[12,-18+bt*3],[3,-16-bt*2]]});R(86,102,26,6,'#3a2414');
+  const [tx,ty]=hw(92,104,1.6,false,12,-18+bt*3);line(tx,ty,tx+5,ty-5,'#f0f0f0');
+  if(sec>=0){label(SECS[sec][2],96,4,'#ffe27a');
+    step('s',sec,()=>{const d=SECS[sec][1]-SECS[sec][0]-.1,CH=[147,220,294,370,440];
+      if(sec===0||sec===4)CH.forEach(f=>SND.bowed(f,d,{peak:.06,att:.25}));
+      if(sec===1||sec===4){[587,523,587,659,587].forEach((f,i)=>SND.flute(f,.45,{peak:.12,delay:i*.48}));SND.reed(294,d,{peak:.04});}
+      if(sec===2||sec===4)[147,220,294,370].forEach(f=>SND.brass(f,d,{peak:.07,bright:2000}));
+      if(sec===3||sec===4)for(let i=0;i<(sec===3?16:6);i++)SND.membrane(73,.35+i*.02,i*.12);
+      if(sec===4)SND.membrane(73,.9,d-.3);});}
+}
+/* Beethoven */
+const ODE=[[370,1],[370,1],[392,1],[440,1],[440,1],[392,1],[370,1],[330,1],[294,1],[294,1],[330,1],[370,1],[370,1.5],[330,.5],[330,2]];
+function sLvb(st){
+  R(0,0,W,H,'#241822');for(let x=0;x<W;x+=32){R(x+4,0,6,70,'#3a2a30');}R(0,70,W,38,'#5a3a22');
+  for(let r=0;r<3;r++)for(let k=0;k<6;k++)sil(112+k*14+(r%2)*7,64+r*10,'#140c12');
+  for(let k=0;k<4;k++){const x=120+k*16;alpha(.6,()=>{line(x+2,66,x+6,58,'#c8a040');});}
+  const beat=.42,b=Math.floor((st-1.2)/beat);let acc=0,ni=-1,start=false;for(let i=0;i<ODE.length;i++){if(b>=acc&&b<acc+ODE[i][1]){ni=i;start=b===acc;break;}acc+=ODE[i][1];}
+  const playing2=st>1.2&&st<8.4,turned=st>11.6,ap=st>9.2;
+  const bt=playing2||(st<11.6&&st>8.4)?Math.sin(st*Math.PI*2/(beat*2)):0;
+  // público
+  for(let k=0;k<7;k++){const x=6+k*13,wave=ap?Math.round(Math.sin(st*10+k)*2):0;sil(x,100,'#0e080c');if(ap){P(x-3,93-wave,'#e0b090');P(x+3,93+wave,'#e0b090');}}
+  person(88,98,2,turned,{pal:LVB,wear:'coat',hair:'wild',hands:turned?[[10,-8],[8,-8]]:[[16,-18+bt*4],[4,-16-bt*3]]});R(84,96,32,6,'#3a2414');
+  if(!turned){const [tx,ty]=hw(88,98,2,false,16,-18+bt*4);line(tx,ty,tx+6,ty-6,'#f0f0f0');}
+  if(st>10.2){const sx=Math.max(114,150-(st-10.2)*24);person(sx,98,2,true,{pal:SING,wear:'dress',hair:'long',hands:st>11.2?[[16,-12],[9,-8]]:[[9,-8],[7,-8]]});}
+  if(playing2&&ni>=0&&start)step('o',b,()=>{const f=ODE[ni][0],d=ODE[ni][1]*beat*.95;SND.bowed(f,d,{peak:.1});SND.brass(f/2,d,{peak:.06});sing(f,d,'a',{peak:.1});SND.bowed(f/2*.75,d,{peak:.05});});
+  if(ap)step('ap',1,()=>SND.applause(4.4,45));
+  if(ap&&!turned)alpha(.8,()=>label('NO LOS OYE...',96,16,'#9fd3ff'));
+  if(turned)label('...Y AL FIN LOS VE!',96,16,'#ffe27a');
+  label('NOVENA SINFONIA, 1824',96,4,'#ffe27a');
+}
+/* Romanticismo */
+const ROM=[[165,247,330,392,330,247],[131,196,262,330,262,196],[110,165,220,262,220,165],[123,185,247,311,247,185]];
+const RMEL=[[659,3],[622,1],[659,2],[494,3],[523,1],[440,2],[392,3],[440,1],[494,4]];
+function sRom(st){
+  R(0,0,W,H,'#1a1426');R(130,12,34,48,'#0a0c20');R(130,12,34,2,'#8a6a4a');R(146,12,2,48,'#8a6a4a');R(130,34,34,2,'#8a6a4a');moon(154,24);
+  R(0,92,W,16,'#3a2020');for(let x=0;x<W;x+=20)R(x,92,1,16,'#2a1616');
+  grand(60,62);candelabra(44,50,st);
+  const beat=.18,b=Math.floor((st-1)/beat),on=st>1&&st<12.8,ch=ROM[Math.floor(b/12)%4];
+  person(22,92,2,false,{pal:{skin:'#e8c0a0',shade:'#b89070',hair:'#3a2210',cloth:'#1a1a22',clothL:'#f0f0f0',legs:'#1a1a22'},wear:'coat',hands:[[15,-15+(b%2)],[13,-15+((b+1)%2)]],blink:(st%3.3)<.1});
+  if(on){step('a',b,()=>SND.piano(ch[b%6],.5,.13));let acc=0;for(const [f,d] of RMEL){if(b===acc*2)step('m',b,()=>SND.piano(f,d*2*beat+.3,.3));acc+=d;}}
+  notesFrom(96,36,st,.6,2.4,1,1,12.5);
+  darkness(.45,[[44,44,60],[154,30,30]]);
+  label('ROMANTICISMO: CHOPIN, LISZT',96,98,'#ffe27a');
+}
+function sEnd(st){
+  hall(st,NIGHT,true);
+  if(st>2.5){const nb=Math.floor((st-2.5)/.4);if(nb<6)step('e',nb,()=>SND.piano([370,370,392,440,440,392][nb],1,.2));}
+}
+
+iniciar({num:8,prev:'capitulo7.html',next:'capitulo9.html',escenas:[
+  {dur:8,draw:sTitle,name:'Inicio',title:['CAPÍTULO 8','LA ORQUESTA<br>Y EL PIANO'],
+   text:'Siglo XVIII. La música sale de iglesias y palacios: se abren SALAS DE CONCIERTO donde cualquiera que compre una entrada puede escuchar.'},
+  {dur:14,draw:sPiano,name:'El piano',
+   text:'Hacia 1700, en Florencia, BARTOLOMEO CRISTOFORI inventó un teclado con MARTILLOS que podía sonar suave (PIANO) y fuerte (FORTE): el PIANOFORTE.'},
+  {dur:14,draw:sMozart,name:'Mozart',
+   text:'MOZART componía desde los cinco años y recorrió Europa tocando. Junto a HAYDN, dio forma a la SINFONÍA y al cuarteto de cuerda: es el CLASICISMO.'},
+  {dur:14,draw:sOrch,name:'La orquesta',
+   text:'La ORQUESTA creció: CUERDAS, MADERAS, METALES y PERCUSIÓN, todos guiados por un DIRECTOR con su batuta.'},
+  {dur:14,draw:sLvb,name:'Beethoven',
+   text:'BEETHOVEN fue quedándose sordo, pero siguió componiendo. Se cuenta que en el estreno de su NOVENA SINFONÍA (1824) una cantante lo giró para que viera los aplausos.'},
+  {dur:14,draw:sRom,name:'Romanticismo',
+   text:'En el ROMANTICISMO (siglo XIX), la música expresa emociones intensas. Pianistas como CHOPIN y LISZT eran verdaderas estrellas.'},
+  {dur:9,draw:sEnd,name:'Continuará',title:['PRÓXIMO: CAPÍTULO 9','ATRAPAR<br>EL SONIDO'],
+   text:'Hasta entonces, la música desaparecía al dejar de sonar. Nadie podía guardarla... hasta que alguien lo intentó. Continuará.'}
+]});
+</script>
+</body>
+</html>

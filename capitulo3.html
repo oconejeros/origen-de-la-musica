@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Origen de la Música · Cap. 3</title>
+</head>
+<body>
+<script src="motor.js"></script>
+<script>
+/* ===================== CAPÍTULO 3 · TAMBORES Y CUERDAS ===================== */
+const NEO={skin:'#c68642',shade:'#8d5524',hair:'#2b1a10',cloth:'#9a8058',clothL:'#c0a070'};
+const NEO2={skin:'#e0ac69',shade:'#a9743a',hair:'#5a3418',cloth:'#7a6a4a',clothL:'#a8905a'};
+const NEO3={skin:'#a86a3a',shade:'#744420',hair:'#1a100a',cloth:'#b07a4a',clothL:'#d09a60'};
+const JIA={skin:'#e0b080',shade:'#b08050',hair:'#141010',cloth:'#a89070',clothL:'#c8b090'};
+
+srand(33);
+const HILL1=mkRidge(56,[[5,.03,1],[3,.09,0]]),HILL2=mkRidge(68,[[3,.05,2],[2,.13,1]]);
+const WHEAT=[...Array(90)].map(()=>[rnd()*W|0,77+(rnd()*10|0)]);
+const DAWN=['#3b4a7a','#5a5e8c','#8a6f8e','#c98a7a','#e8a870'],DUSK=['#1c1a40','#3a2a58','#6a3a5a','#a8504a','#d8804a'];
+function hut(x,y,t){
+  R(x-8,y-8,16,8,'#8a6a42');R(x-8,y-8,16,1,'#6a4a2a');R(x-2,y-6,4,6,'#2a1a10');
+  for(let i=0;i<10;i++)R(x-10+i,y-9-i,20-2*i,1,i%2?'#b08a3a':'#9a7630');
+  for(let k=0;k<5;k++){const a=(t*.3+k*.2)%1;alpha(.5-a*.5,()=>R(x+Math.sin(t+k)*2+a*6,y-20-a*22,2,2,'#c8c0c8'));}
+}
+function village(t,cols=DAWN,sunY=50){
+  sky(cols);sun(150,sunY,7);
+  ridge(HILL1,'#5a506a');ridge(HILL2,'#4a5a3a','#5a6a44');
+  R(0,76,W,32,'#7a6630');for(let y=77;y<88;y+=3)R(0,y,W,1,'#9a8038');for(const [x,y] of WHEAT)P(x,y,'#e0b850');
+  R(0,88,W,20,'#5a4a2a');R(0,88,W,1,'#6a5a34');
+  hut(22,88,t);hut(174,89,t+2);
+}
+/* ---- escenas ---- */
+function sTitle(st){
+  village(st);
+  const x=60+st*3;
+  person(x,96,1.5,false,{pal:NEO,wear:'tunic',hands:[[13,-9],[11,-8]],lift:Math.round(Math.abs(Math.sin(st*4)))});
+  const [hx,hy]=hw(x,96,1.5,false,13,-9);line(hx,hy,hx+6,hy+12,'#6b4423');
+  person(120,96,1.5,true,{pal:NEO3,wear:'tunic',hands:[[12,-16],[7,-8]]});
+  // cabras
+  for(const gx of [140,152]){R(gx,90,6,3,'#e8e0d0');R(gx+5,88,2,2,'#e8e0d0');P(gx+6,87,'#8a7a6a');R(gx,93,1,2,'#8a7a6a');R(gx+5,93,1,2,'#8a7a6a');}
+}
+function crane(x,y,t){
+  const bob=Math.sin(t*1.3)>.7?3:0;
+  line(x,y,x+1,y-10,'#3a3a3a');line(x+3,y,x+2,y-10,'#3a3a3a');
+  oval(x+1,y-13,6,3,'#eeeeee');R(x-5,y-13,3,2,'#222');
+  line(x+5,y-14,x+7,y-22+bob,'#eeeeee');R(x+6,y-24+bob,3,2,'#eeeeee');P(x+7,y-25+bob,'#d02020');line(x+9,y-23+bob,x+13,y-22+bob,'#c8a060');
+}
+const JMEL=[523,587,659,0,784,659,587,0,523,587,659,784,880,0,784,0,659,587,523,0,440,523,523,0];
+function sJiahu(st){
+  sky(['#6aa0d8','#80b0e0','#98c0e8','#b0d0ec','#c8e0f0']);sun(30,16,6,'#fff4c0','#fff0a0');
+  ridge(HILL1,'#7a90a8');ridge(HILL2,'#5a7a5a','#6a8a64');
+  R(0,74,W,18,'#3a70a0');for(let k=0;k<14;k++){const x=(k*29+st*6)%W;R(x,76+(k*5)%14,6,1,'#8ac0e8');}
+  for(let k=0;k<30;k++){const x=k*6+(k%3);line(x,74,x+Math.sin(st+k)*1.5,66-(k*7)%6,'#4a6a3a');}
+  R(0,90,W,18,'#6a5a3a');R(0,90,W,1,'#8a7a50');
+  crane(146,86,st);crane(168,88,st+2);
+  const x=40,y=96,b=Math.floor(st/.4),f=JMEL[b%JMEL.length];
+  person(x,y,2,false,{pal:JIA,wear:'tunic',hands:[[17,-13],[13,-13]],blink:(st%3.3)<.1});
+  const [ax,ay]=hw(x,y,2,false,9,-15),[bx,by]=hw(x,y,2,false,22,-11);line(ax,ay,bx,by,'#f0e8d0');line(ax,ay+1,bx,by+1,'#c8b890');
+  if(st>1&&st<13&&f)step('fl',b,()=>SND.flute(f,.38));
+  notesFrom(bx,by,st,.8,2.6,1,1,12.5);
+  if(st>2)alpha(st-2,()=>label('JIAHU, CHINA - 9.000 AÑOS',96,6));
+}
+function clayDrum(dx,dy,hit){
+  R(dx-5,dy,10,2,'#e8d0a8');R(dx-5,dy+2,10,1,'#6a3a1a');
+  R(dx-4,dy+3,8,6,'#a0603a');R(dx-3,dy+9,6,2,'#8a4a2a');R(dx-2,dy+11,4,4,'#a0603a');R(dx-3,dy+15,6,1,'#8a4a2a');
+  P(dx-3,dy+4,'#c07a4a');P(dx-3,dy+5,'#c07a4a');
+  if(hit<.3)alpha(1-hit/.3,()=>{ring(dx,dy,4+hit*20,'#ffe27a');});
+}
+const LOWP=[0,3,6],HIGHP=[2,4,7];
+function lastHit(e,pat){for(let k=0;k<16;k++){const s=Math.floor(e)-k;if(s<0)break;if(pat.includes(((s%8)+8)%8))return e-s;}return 99;}
+function sDrums(st){
+  village(st,DUSK,72);shade(.25,'#100820');fire(96,94,.8,st);
+  const e=st*4,n=Math.floor(e),lo=lastHit(e,LOWP),hi=lastHit(e,HIGHP),y=96;
+  // tamborero grave
+  const up1=lo>.25;person(30,y,2,false,{pal:NEO,wear:'tunic',hands:[[15,up1?-17:-12],[10,-8]]});
+  const [d1x,d1y]=hw(30,y,2,false,16,-11);clayDrum(d1x,d1y,lo);
+  // tamborero agudo
+  const up2=hi>.25;person(150,y,2,true,{pal:NEO2,wear:'tunic',hands:[[15,up2?-17:-12],[10,-8]]});
+  const [d2x,d2y]=hw(150,y,2,true,16,-11);clayDrum(d2x,d2y,hi);
+  // bailarines
+  const b=st*2,sw=Math.floor(b)%2;
+  person(76,y,1.6,false,{pal:NEO3,wear:'tunic',hands:sw?[[12,-22],[4,-16]]:[[6,-20],[12,-16]],lift:Math.round(-2*Math.min(0,Math.sin(Math.PI*b)))});
+  person(106,y,1.6,true,{pal:NEO,wear:'tunic',hands:sw?[[6,-20],[12,-16]]:[[12,-22],[4,-16]],lift:Math.round(2*Math.max(0,Math.sin(Math.PI*b)))});
+  if(st>.5&&st<13.2)step('d',n,()=>{const k=n%8;if(LOWP.includes(k))SND.membrane(85,.9);if(HIGHP.includes(k))SND.membrane(190,.6);SND.shaker(0,k%2?.08:.14);});
+  if(st>2)alpha(st-2,()=>label('BARRO + PIEL = TAMBOR',96,6));
+}
+function sBow(st){
+  sky(['#2a2a58','#4a3a68','#8a5a6a','#c8805a','#e8a860']);sun(40,70,8);
+  ridge(HILL1,'#3a3450');ridge(HILL2,'#3a3a2a');R(0,94,W,14,'#4a3a22');R(0,94,W,1,'#5a4a2a');
+  for(const tx of [150,172]){R(tx,56,3,38,'#2a2018');oval(tx+1,54,14,4,'#2a3020');}
+  const x=64,y=96,s=2;
+  const period=.6,k=Math.floor(st/period),age=st%period,on=st>1&&st<12.8;
+  const topX=x+23,topY=y-46,botY=y-6;
+  person(x,y,s,false,{pal:NEO3,wear:'fur',hands:[[16,-10],[13,on&&age<.1?-7:-4]],mouth:on&&(k%2===0)});
+  // arco
+  let px=topX,py=topY;for(let i=1;i<=16;i++){const u=i/16,xx=topX+9*Math.sin(Math.PI*u),yy=topY+(botY-topY)*u;line(px,py,xx,yy,'#6b4423');line(px+1,py,xx+1,yy,'#8a5a2e');px=xx;py=yy;}
+  const amp=on?2.2*Math.exp(-age*5):0;
+  for(let i=0;i<=40;i++){const u=i/40;P(topX+amp*Math.sin(Math.PI*u)*Math.sin(st*90),topY+(botY-topY)*u,'#e8dcc0');}
+  const [hx,hy]=hw(x,y,s,false,13,on&&age<.1?-7:-4);line(hx+1,hy,topX+2,y-15,'#6b4423');
+  if(on){step('bw',k,()=>{const sw=[[300,1100],[1100,350],[500,1400],[1400,450]][k%4];pluck(k%3===2?123:110,{dur:.9,hl:.5,lp:3000,bp:sw,bpq:9,peak:.7});});
+    const [mx,my]=hw(x,y,s,false,10,-15);alpha(1-age/period,()=>{ring(mx+2,my,3+age*14,'#ffe27a');});}
+  if(st>2)alpha(st-2,()=>label('ARCO MUSICAL',96,6));
+}
+const HARPF=[494,440,392,330,294,247,220,196],HX=[70,78,86,94,102,110,118,126],HPAT=[7,6,5,4,3,2,1,0,-1,-1,2,4,3,1,0,-1,7,5,4,2,-1,1,0,-1];
+const nk=x=>92-64*Math.sqrt(clamp((x-60)/80));
+function sHarp(st){
+  R(0,0,W,H,'#1e1420');alpha(.35,()=>oval(96,60,90,50,'#5a3020'));fire(170,98,.6,st);
+  const b=Math.floor(st/.3),on=st>1&&st<12.5,idx=on?HPAT[b%HPAT.length]:-1,age=st%.3;
+  // último golpe por cuerda
+  const lastAge=HX.map((_,i)=>{for(let k=0;k<24;k++){const bb=b-k;if(bb<0||bb*.3<1)break;if(HPAT[bb%HPAT.length]===i)return st-bb*.3;}return 99;});
+  // arpista detrás
+  const px=86,py=100;const tgt=idx>=0?idx:3;const [lxh,lyh]=loc(px,py,2,true,HX[tgt],nk(HX[tgt])/2+46);
+  person(px,py,2,true,{pal:NEO2,wear:'tunic',hands:[[clamp(lxh,-8,18),clamp(lyh,-20,-4)],[8,-6]],blink:(st%3)<.1});
+  // arpa
+  R(56,92,82,5,'#8a5a2e');R(56,92,82,1,'#a8703a');R(56,96,82,1,'#5a3a1a');
+  for(let x=60;x<=140;x++){const y=nk(x);R(x,y,1,3,'#6b4423');P(x,y,'#8a5a2e');}
+  HX.forEach((sx,i)=>{const top=nk(sx)+3,a=lastAge[i],amp=a<1.2?1.5*Math.exp(-a*3):0;
+    for(let yy=top;yy<92;yy++){const u=(yy-top)/(92-top);P(sx+amp*Math.sin(Math.PI*u)*Math.sin(st*80+i),yy,a<.3?'#fff3a0':'#d8c8a0');}});
+  if(on&&idx>=0)step('h',b,()=>pluck(HARPF[idx],{dur:1.4,hl:.45,lp:3500,peak:.45}));
+  if(on&&idx>=0)alpha(1-age/.3,()=>note(HX[idx]-3,nk(HX[idx])-10-age*20,NOTE_COLS[idx%5]));
+  label('CORTA = AGUDA',40,8,'#9fd3ff');label('LARGA = GRAVE',152,8,'#ffb347');
+}
+function sEnd(st){
+  village(st,DUSK,50+st*3);shade(clamp(st/9)*.35,'#100820');
+  for(let i=0;i<6;i++)hut(40+i*22,92+(i%2)*2,st+i);
+  if(st>2.5){const nb=Math.floor((st-2.5)/.35);if(nb<8)step('e',nb,()=>pluck(HARPF[7-nb],{dur:1.4,hl:.45,lp:3500,peak:.4}));}
+}
+
+iniciar({num:3,prev:'capitulo2.html',next:'capitulo4.html',escenas:[
+  {dur:8,draw:sTitle,name:'Inicio',title:['CAPÍTULO 3','TAMBORES<br>Y CUERDAS'],
+   text:'Hace unos 10.000 años terminó la Edad de Hielo. Los humanos aprendieron a cultivar y a criar animales, y fundaron las primeras ALDEAS.'},
+  {dur:14,draw:sJiahu,name:'Flautas de Jiahu',
+   text:'En Jiahu, China, se hallaron flautas de hueso de grulla de hace unos 9.000 años, con cinco a ocho agujeros. ¡Una de ellas todavía se puede tocar!'},
+  {dur:14,draw:sDrums,name:'Tambores',amb:fireAmb,
+   text:'Con la CERÁMICA y las pieles de animales nacieron los TAMBORES: una piel tensada sobre un recipiente. Hace más de 5.000 años ya los había en Europa y en China.'},
+  {dur:13,draw:sBow,name:'El arco musical',
+   text:'Quizá un cazador notó que la cuerda de su arco zumbaba. El ARCO MUSICAL, que aún se toca en África, usa la boca como caja de resonancia. Tal vez sea el abuelo de los instrumentos de cuerda.'},
+  {dur:13,draw:sHarp,name:'El arpa',amb:fireAmb,
+   text:'Si una cuerda da una nota, ¿por qué no varias? Con cuerdas de distinto largo nacieron las ARPAS: las cuerdas largas suenan GRAVES y las cortas, AGUDAS.'},
+  {dur:9,draw:sEnd,name:'Continuará',title:['PRÓXIMO: CAPÍTULO 4','LA PRIMERA<br>CANCIÓN ESCRITA'],
+   text:'Las aldeas crecieron hasta ser ciudades, con reyes, templos... y un invento nuevo: la ESCRITURA. Continuará.'}
+]});
+</script>
+</body>
+</html>

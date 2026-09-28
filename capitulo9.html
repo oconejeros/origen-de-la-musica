@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Origen de la Música · Cap. 9</title>
+</head>
+<body>
+<script src="motor.js"></script>
+<script>
+/* ===================== CAPÍTULO 9 · ATRAPAR EL SONIDO ===================== */
+const SCOTT={skin:'#e8c0a0',shade:'#b89070',hair:'#3a2a1a',beard:'#3a2a1a',cloth:'#2a2a3a',clothL:'#e8e0cc',legs:'#1a1a22'};
+const EDI={skin:'#e8c0a0',shade:'#b89070',hair:'#2a2020',cloth:'#4a4a52',clothL:'#e8e0cc',legs:'#2a2a30'};
+const FAM1={skin:'#e0b090',shade:'#b08060',hair:'#4a2a14',cloth:'#6a3a4a',clothL:'#e8e0cc'};
+const FAM2={skin:'#e8c0a0',shade:'#b89070',hair:'#2a1a10',cloth:'#3a4a6a',clothL:'#e8e0cc',legs:'#2a2a3a'};
+const KID={skin:'#f0c8a8',shade:'#c09878',hair:'#c89040',cloth:'#3a7a4a',clothL:'#e8e0cc',legs:'#3a3a4a'};
+
+srand(99);
+const NIGHT=['#070818','#0c0f28','#141838','#1c2044','#262a50'];
+function lab(t){
+  R(0,0,W,H,'#3a2a22');for(let x=0;x<W;x+=10)R(x,0,1,92,'#32241c');
+  for(const sy of [22,44]){R(6,sy,60,3,'#5a3a22');for(let k=0;k<8;k++){const c=['#6aa88a','#a86a6a','#c8b870','#7a8ac8'][k%4];R(10+k*7,sy-6-(k%3),4,6+(k%3),c);R(11+k*7,sy-8-(k%3),2,2,'#d8d8d8');}}
+  R(150,10,30,40,'#101828');R(150,10,30,2,'#6a4a3a');R(164,10,2,40,'#6a4a3a');stars(t,0);for(const [x,y] of [[155,16],[172,22],[158,40]])P(x,y,'#fff6d8');
+  line(96,0,96,14,'#2a2a2a');R(92,14,8,4,'#6a6a70');alpha(.18+.03*Math.sin(t*7),()=>oval(96,30,40,30,'#ffcf70'));flame(96,20,t,1.2);
+  R(0,92,W,16,'#2a1e18');R(0,92,W,1,'#4a3428');
+}
+function bench(){R(20,72,152,4,'#6a4428');R(20,72,152,1,'#8a5a34');R(24,76,4,16,'#4a2e18');R(164,76,4,16,'#4a2e18');}
+function horn(x0,y,x1,r0,r1,c='#b8a888'){for(let x=x0;x<=x1;x++){const u=(x-x0)/(x1-x0),r=r0+(r1-r0)*u*u;R(x,y-r,1,2*r,c);P(x,y-r,'#d8c8a8');}}
+/* ---- escenas ---- */
+function sTitle(st){
+  lab(st);bench();
+  for(let k=0;k<5;k++){const x=40+k*24;R(x,64,10,8,['#4a4a52','#6a4428','#3a5a6a','#6a6a70','#5a3a2a'][k]);if(k%2)line(x+10,66,x+24,66,'#c87a2a');}
+  alpha(.6+.4*Math.sin(st*20),()=>P(90,62,'#9fd3ff'));
+  person(138,92,2,true,{pal:EDI,wear:'coat',hands:[[14,-12],[12,-11]],blink:(st%3)<.1});
+}
+/* fonoautógrafo */
+const AUC=[[392,1],[392,1],[392,1],[440,1],[494,2],[440,2],[392,1],[494,1],[440,1],[440,1],[392,4]];
+function playSeq(seq,beat,st,t0,key,fn){const b=Math.floor((st-t0)/beat);let acc=0;for(let i=0;i<seq.length;i++){if(b===acc){if(st>=t0)step(key,b,()=>fn(seq[i][0],seq[i][1]*beat,i));return i;}if(b<acc+seq[i][1])return i;acc+=seq[i][1];}return -1;}
+function sPhon(st){
+  lab(st);bench();
+  const rec=st>1&&st<7.4,old=st>=7.6;
+  horn(34,52,74,12,3,'#9a8a70');R(74,48,2,8,'#e8dcc0');line(76,52,86,56,'#1a1a1a');
+  R(86,46,48,20,'#1a1a1a');oval(86,56,3,10,'#2a2a2a');oval(134,56,3,10,'#2a2a2a');R(134,55,14,2,'#6a6a70');line(148,56,148,48,'#6a6a70');
+  const prog=clamp((st-1)/6.4);
+  for(let x=0;x<prog*46;x++){const w=Math.sin(x*1.3)*2*(.5+.5*Math.sin(x*.21))*(rec||old?1:0);P(88+x,56+w,'#e8e8e8');}
+  person(6,92,2,false,{pal:SCOTT,wear:'coat',beard:true,hands:[[16,-13],[10,-8]],mouth:rec&&(st%.5)<.35});
+  if(rec)playSeq(AUC,.5,st,1,'a',(f,d)=>sing(f,d*.95,'o',{peak:.18}));
+  label('1860: SCOTT DE MARTINVILLE',96,4,'#ffe27a');
+  if(old){
+    alpha(clamp((st-7.6)*2),()=>{R(116,14,62,40,'#2a2a30');R(118,16,58,32,'#0a1a10');R(142,54,10,4,'#2a2a30');
+      for(let x=0;x<56;x++){const a=Math.sin(x*.9+st*8)*6*Math.sin(x*.12+st),y=32+a;P(119+x,y,'#6af08a');}
+      label('2008: POR FIN SE ESCUCHA!',128,62,'#6af08a');});
+    playSeq(AUC,.5,st,7.8,'b',(f,d)=>{sing(f,d*.95,'o',{peak:.14,filt:['bandpass',1400,1.4]});noise('bandpass',2500,.6,.05,d);});
+  }
+}
+/* Edison */
+const MARY=[[330,1],[294,1],[262,1],[294,1],[330,1],[330,1],[330,2],[294,1],[294,1],[294,2],[330,1],[392,1],[392,2]];
+function phonograph(x,y,st,spin){
+  R(x,y+14,50,4,'#5a3a22');R(x+4,y+8,3,6,'#6a6a70');R(x+43,y+8,3,6,'#6a6a70');
+  R(x+2,y+7,46,2,'#8a8a90');R(x+10,y,30,14,'#c8c8d0');for(let k=0;k<30;k+=2)R(x+10+((k+spin)%30),y,1,14,'#9a9aa8');R(x+10,y,30,1,'#f0f0f8');
+  const a=spin*.4;line(x+48,y+8,x+48+Math.cos(a)*6,y+8+Math.sin(a)*6,'#6a6a70');R(x+47+Math.cos(a)*6,y+7+Math.sin(a)*6,3,3,'#3a2a1a');
+  R(x+2,y-4,10,6,'#4a4a52');horn(x-18,y-1,x+2,7,2,'#4a4a52');
+}
+function sEdison(st){
+  lab(st);bench();
+  const rec=st>1&&st<6.8,play=st>7.6&&st<13.2,spin=(rec||play)?st*14:0;
+  phonograph(70,56,st,spin|0);
+  person(34,92,2,false,{pal:EDI,wear:'coat',hands:[[18,-16],[10,-8]],mouth:rec&&(st%.4)<.3});
+  person(128,92,2,true,{pal:FAM2,wear:'coat',hands:[[play?4:9,play?-20:-7],[7,-7]],mouth:play&&st<9});
+  if(rec)playSeq(MARY,.42,st,1,'r',(f,d)=>sing(f*.8,d*.9,'a',{peak:.2}));
+  if(play){playSeq(MARY,.42,st,7.8,'p',(f,d)=>sing(f*.8,d*.9,'a',{peak:.16,filt:['bandpass',1600,1.6],vibD:.03}));
+    for(let k=0;k<3;k++){const a=((st*1.3+k/3)%1);alpha(1-a,()=>ring(52,55,4+a*18,'#ffe27a'));}}
+  label(rec?'GRABANDO...':play?'LA MAQUINA HABLA!':'1877: FONOGRAFO DE EDISON',96,4,play?'#6af08a':'#ffe27a');
+}
+/* gramófono */
+const RAG=[[523,1],[587,.5],[659,1],[523,.5],[587,1],[784,1],[659,.5],[587,.5],[523,1],[440,1],[392,2],[0,1],[659,1],[698,.5],[784,1],[659,.5],[587,1],[523,1],[587,1],[523,3]];
+function room(t,wall='#6a4a5a',pat='#7a5a6a'){
+  R(0,0,W,H,wall);for(let x=0;x<W;x+=12)for(let y=0;y<86;y+=10)P(x+((y/10)%2?6:0),y+4,pat);
+  R(0,86,W,22,'#5a3a22');for(let x=0;x<W;x+=18)R(x,86,1,22,'#4a2e18');R(0,84,W,2,'#3a2418');
+}
+function sGram(st){
+  room(st);R(140,12,34,40,'#2a3050');R(140,12,34,2,'#e8e0cc');R(156,12,2,40,'#e8e0cc');
+  R(64,66,56,6,'#6a3a1a');R(68,72,4,16,'#5a2e14');R(112,72,4,16,'#5a2e14');R(70,58,44,8,'#7a4a2a');
+  const a=st*3.5;oval(92,57,18,3,'#101010');oval(92,57,6,1.2,'#c83030');for(let k=0;k<3;k++){const b=a+k*2.1;P(92+Math.cos(b)*14,57+Math.sin(b)*2.4,'#5a5a5a');}
+  line(110,54,98,56,'#c8a040');line(110,54,116,40,'#c8a040');
+  for(let i=0;i<22;i++){const r=1+i*i*.035;alpha(1,()=>{R(116+i*.6-r,40-i,r*2,1,i%3?'#c8a040':'#e8c860');});}
+  person(22,88,2,false,{pal:FAM1,wear:'dress',hair:'long',hands:[[9,-8],[7,-8]],blink:(st%3.1)<.1});
+  person(150,88,1.4,true,{pal:KID,wear:'shirt',hands:[[12,-16+((st*4|0)%2)*2],[9,-7]],lift:Math.round(Math.abs(Math.sin(st*6)))});
+  const beat=.2,b=Math.floor((st-1)/beat),on=st>1&&st<12.8;
+  if(on){step('bs',b,()=>{if(b%2===0)SND.piano(b%4===0?131:98,.3,.16);else SND.piano([262,330,392][b%3],.2,.07);});
+    let acc=0;for(const [f,d] of RAG){if(b===Math.round(acc*2)%64&&f)step('m',b,()=>SND.piano(f,d*2*beat,.22));acc+=d;}}
+  notesFrom(124,18,st,.7,2.2,1,1,12.5);
+  label('1887: GRAMOFONO DE BERLINER',96,4,'#ffe27a');
+}
+/* radio */
+const STATIONS=['JAZZ','TANGO','BOLERO'];
+function sRadio(st){
+  room(st,'#4a5a4a','#5a6a5a');
+  R(8,10,50,40,'#2a3a6a');R(8,10,50,2,'#e8e0cc');R(32,10,2,40,'#e8e0cc');R(8,50,50,2,'#e8e0cc');
+  R(24,18,3,32,'#6a6a70');line(24,18,20,50,'#6a6a70');line(27,18,31,50,'#6a6a70');P(25,17,'#ff4040');
+  for(let k=0;k<3;k++){const a=((st*.9+k/3)%1);alpha(1-a,()=>ring(25,18,3+a*20,'#9fd3ff'));}
+  // sofá y familia
+  R(96,70,84,16,'#8a3a3a');R(96,62,84,10,'#9a4a4a');R(92,66,6,20,'#7a2a2a');R(178,66,6,20,'#7a2a2a');
+  person(104,84,1.6,false,{pal:FAM1,wear:'dress',hair:'long',hands:[[9,-8],[7,-8]],blink:(st%3)<.1});
+  person(130,84,1.6,false,{pal:FAM2,wear:'coat',hands:[[9,-8],[7,-8]],blink:(st%3.4)<.1});
+  person(156,84,1.2,false,{pal:KID,wear:'shirt',hands:[[12,-12],[9,-7]],lift:Math.round(Math.abs(Math.sin(st*7)))});
+  // radio capilla
+  R(62,52,26,34,'#6a3a1a');oval(75,52,13,10,'#6a3a1a');R(66,50,18,20,'#2a1a10');for(let k=0;k<6;k++)R(67+k*3,48,1,22,'#8a5a2a');
+  const sta=st<4.9?0:st<9.1?1:2;R(66,74,18,6,'#2a1a10');alpha(.8,()=>R(67,75,16,4,'#ffcf70'));R(68+sta*6,74,1,6,'#c83030');
+  R(64,82,4,4,'#3a2010');R(82,82,4,4,'#3a2010');
+  label(STATIONS[sta],75,34,'#ffe27a');
+  const beat=.21,b=Math.floor(st/beat),on=st>.8&&st<13.2;
+  if(on)step('r',b,()=>{const k=b%8;
+    if(sta===0){pluck([98,110,131,147,165,147,131,110][k],{dur:.4,hl:.2,lp:900,peak:.5});if(k%2)SND.hat(0,false,.1);if(k===2||k===6)SND.snare(0,.15);if(k===0||k===5)SND.brass([392,466][k?1:0],.3,{peak:.08});}
+    else if(sta===1){if([0,3,4,6].includes(k))[196,247,294].forEach(f=>SND.reed(f,.16,{peak:.05,lp:1400}));if(k%2===0)pluck(98,{dur:.3,hl:.15,lp:700,peak:.4});if(k===7)SND.reed(587,.2,{peak:.05});}
+    else{if(k%2===0)pluck([147,196,247,294][k/2],{dur:.8,hl:.3,lp:2200,peak:.35});SND.shaker(0,k%2?.06:.1);if(k===3||k===6)SND.membrane(160,.3);if(k===0)SND.flute([494,440,392,440][Math.floor(b/8)%4],.9,{peak:.12});}});
+  if(on&&(st%4.2)<.15)step('sw',Math.floor(st/4.2),()=>noise('bandpass',1800,.5,.12,.3));
+  notesFrom(75,46,st,.6,2,1,.8,13);
+  label('LA RADIO: 1920-1950',140,4,'#ffe27a');
+}
+function sEnd(st){
+  sky(NIGHT);stars(st,40);
+  for(let k=0;k<14;k++){const x=k*14,h=20+((k*37)%30);R(x,92-h,13,h,'#141420');for(let y=96-h;y<90;y+=5)for(let wx=x+2;wx<x+11;wx+=4)if((wx*y+k)%3)P(wx,y,'#ffcf70');}
+  R(84,20,3,52,'#6a6a70');line(85,20,76,72,'#6a6a70');line(85,20,94,72,'#6a6a70');P(85,19,'#ff4040');
+  for(let k=0;k<3;k++){const a=((st*.8+k/3)%1);alpha(1-a,()=>ring(85,20,3+a*28,'#9fd3ff'));}
+  R(0,92,W,16,'#101018');
+  alpha(.5+.5*Math.sin(st*6),()=>{txt('RADIO',140,40,'#ff5aa0');R(136,38,24,1,'#ff5aa0');R(136,46,24,1,'#ff5aa0');});
+  if(st>2.5){const nb=Math.floor((st-2.5)/.3);if(nb<8)step('e',nb,()=>tone({f:[440,523,659,784,659,523,440,330][nb],peak:.12,dur:.28,att:.02,vib:6,vibD:4}));}
+}
+
+iniciar({num:9,prev:'capitulo8.html',next:'capitulo10.html',escenas:[
+  {dur:8,draw:sTitle,name:'Inicio',title:['CAPÍTULO 9','ATRAPAR<br>EL SONIDO'],
+   text:'Durante toda la historia, para escuchar música había que estar allí, frente a los músicos. Pero en el siglo XIX, los inventores se hicieron una pregunta...'},
+  {dur:14,draw:sPhon,name:'Fonoautógrafo',
+   text:'En 1860, el francés SCOTT DE MARTINVILLE logró DIBUJAR el sonido sobre papel ahumado. No podía reproducirlo... ¡hasta que en 2008 unos científicos convirtieron su dibujo en sonido!'},
+  {dur:14,draw:sEdison,name:'Edison',
+   text:'En 1877, THOMAS EDISON inventó el FONÓGRAFO: grabó su voz en un cilindro con papel de estaño y luego ¡la máquina la repitió! Lo primero que grabó fue una canción infantil.'},
+  {dur:14,draw:sGram,name:'Gramófono',amb:(dt)=>{if(Math.random()<dt*6)SND.crackle();},tint:['bandpass',1800,.7],
+   text:'En 1887, EMILE BERLINER creó el GRAMÓFONO, con discos planos fáciles de copiar. Nacía la industria discográfica: la música entraba en los hogares.'},
+  {dur:14,draw:sRadio,name:'La radio',tint:['bandpass',1300,.8],
+   text:'En los años 1920 llegó la RADIO: millones de personas escuchaban la misma música a la vez. El JAZZ, el TANGO y el BOLERO se hicieron famosos en todo el mundo.'},
+  {dur:9,draw:sEnd,name:'Continuará',title:['PRÓXIMO: CAPÍTULO 10','LA MÚSICA<br>ELÉCTRICA'],
+   text:'La electricidad no solo servía para grabar y transmitir: también podía CREAR sonidos nuevos. Continuará.'}
+]});
+</script>
+</body>
+</html>

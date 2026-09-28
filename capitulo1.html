@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Origen de la Música</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0a14;--fg:#f3e9d2;--accent:#ffb347;--panel:#16142a;--line:#2a2640}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:'Press Start 2P',monospace;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:16px}
+h1{font-size:clamp(10px,2vw,16px);color:var(--accent);margin:4px 0 14px;text-align:center;line-height:1.6}
+.stage{position:relative;width:100%;max-width:960px}
+canvas{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:block;border:4px solid var(--line);background:#000}
+#title{position:absolute;inset:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;opacity:0;text-shadow:3px 3px 0 #000;padding:0 16px}
+#title .a{font-size:clamp(9px,1.8vw,16px);color:var(--accent);margin-bottom:14px}
+#title .b{font-size:clamp(12px,3vw,28px);line-height:1.5}
+#start{position:absolute;inset:4px;display:flex;align-items:center;justify-content:center;background:rgba(5,4,12,.75)}
+button{font-family:inherit;background:var(--panel);color:var(--fg);border:4px solid var(--line);padding:10px 14px;font-size:clamp(9px,1.4vw,12px);cursor:pointer}
+button:hover{border-color:var(--accent);color:var(--accent)}
+#start button{font-size:clamp(11px,2vw,18px);padding:16px 22px;border-color:var(--accent)}
+#cap{min-height:6em;margin-top:12px;font-size:clamp(9px,1.5vw,13px);line-height:1.9;background:var(--panel);border:4px solid var(--line);padding:12px 14px;width:100%}
+.bar{display:flex;gap:8px;margin-top:10px;width:100%;align-items:center;flex-wrap:wrap}
+.segs{display:flex;gap:4px;flex:1;min-width:160px}
+.seg{flex:1;height:14px;background:var(--panel);border:2px solid var(--line);cursor:pointer;position:relative;overflow:hidden}
+.seg i{position:absolute;inset:0;background:var(--accent);transform-origin:left;transform:scaleX(0)}
+</style>
+</head>
+<body>
+<h1>EL ORIGEN DE LA MÚSICA · CAPÍTULO 1</h1>
+<div class="stage">
+  <canvas id="c" width="192" height="108"></canvas>
+  <div id="title"><div class="a"></div><div class="b"></div></div>
+  <div id="start"><button id="go">▶ VER CAPÍTULO 1</button></div>
+</div>
+<div id="cap"></div>
+<div class="bar">
+  <button id="pp">❚❚</button>
+  <button id="rs">↺</button>
+  <button id="mu">SONIDO: SÍ</button>
+  <div class="segs" id="segs"></div>
+</div>
+<nav class="bar" style="justify-content:space-between;margin-top:14px"><a href="index.html" style="color:var(--fg);text-decoration:none;border:4px solid var(--line);background:var(--panel);padding:10px 12px;font-size:clamp(8px,1.2vw,11px)">ÍNDICE</a><a href="capitulo2.html" style="color:var(--fg);text-decoration:none;border:4px solid var(--line);background:var(--panel);padding:10px 12px;font-size:clamp(8px,1.2vw,11px)">CAP. 2 ▶</a></nav>
+
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const W=192,H=108;
+ctx.imageSmoothingEnabled=false;
+
+/* ---------- pixel helpers ---------- */
+function R(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
+function P(x,y,c){R(x,y,1,1,c);}
+function line(x0,y0,x1,y1,c){
+  x0=Math.round(x0);y0=Math.round(y0);x1=Math.round(x1);y1=Math.round(y1);
+  const dx=Math.abs(x1-x0),dy=-Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1;let e=dx+dy;
+  for(;;){P(x0,y0,c);if(x0===x1&&y0===y1)break;const e2=2*e;if(e2>=dy){e+=dy;x0+=sx;}if(e2<=dx){e+=dx;y0+=sy;}}
+}
+function oval(cx,cy,rx,ry,c){
+  for(let dy=-Math.round(ry);dy<=Math.round(ry);dy++){
+    const w=rx*Math.sqrt(Math.max(0,1-(dy/ry)**2));R(cx-w,cy+dy,2*w,1,c);
+  }
+}
+function ring(cx,cy,r,c){
+  const n=Math.max(8,Math.round(r*6));
+  for(let i=0;i<n;i++){const a=i/n*Math.PI*2;P(cx+Math.cos(a)*r,cy+Math.sin(a)*r,c);}
+}
+let seed=7;function rnd(){seed=(seed*16807)%2147483647;return seed/2147483647;}
+const STARS=[...Array(45)].map(()=>[rnd()*W|0,rnd()*58|0,rnd()*7|0]);
+const FAR=[...Array(W)].map((_,x)=>Math.round(62+7*Math.sin(x*.05)+5*Math.sin(x*.13+1)+2*Math.sin(x*.31)));
+const NEAR=[...Array(W)].map((_,x)=>Math.round(76+5*Math.sin(x*.07+2)+3*Math.sin(x*.19)));
+const GRASS=[...Array(40)].map(()=>[rnd()*W|0,90+(rnd()*16|0)]);
+
+/* ---------- escenario ---------- */
+const SKY=['#0a0920','#110f2c','#1a1638','#261d45','#35264f'];
+function bg(t,dim=0){
+  for(let i=0;i<SKY.length;i++)R(0,i*14,W,14,SKY[i]);
+  for(let i=1;i<SKY.length;i++){const y=i*14;for(let x=0;x<W;x+=2){P(x,y,SKY[i-1]);P(x+1,y-1,SKY[i]);}}
+  for(const [x,y,k] of STARS){const tw=(k+Math.floor(t*3))%7===0;P(x,y,tw?'#5a5580':(k<2?'#fff6d8':'#b8b3e0'));}
+  oval(162,18,6,6,'#f5e6b8');P(160,16,'#d9c78f');P(164,20,'#d9c78f');P(163,15,'#d9c78f');
+  for(let x=0;x<W;x++){R(x,FAR[x],1,H-FAR[x],'#1f1a38');R(x,NEAR[x],1,H-NEAR[x],'#15122a');}
+  R(0,90,W,18,'#241a14');R(0,90,W,1,'#3a2a1c');
+  for(const [x,y] of GRASS)P(x,y,'#33261a');
+  if(dim){ctx.globalAlpha=dim;R(0,0,W,H,'#000');ctx.globalAlpha=1;}
+}
+function fire(x,y,size,t){
+  const r=(22+Math.sin(t*9)*1.5+Math.sin(t*23))*size;
+  ctx.globalAlpha=.13;oval(x,y-1,r,r*.35,'#ff8a2a');ctx.globalAlpha=.07;oval(x,y-10*size,r*.8,r*.8,'#ffb050');ctx.globalAlpha=1;
+  line(x-7*size,y,x+6*size,y-3,'#5e3a1c');line(x+7*size,y,x-6*size,y-3,'#4a2c14');
+  const n=Math.max(3,Math.round(9*size));
+  for(let i=0;i<n;i++){
+    const cx=x-(n>>1)+i,center=1-Math.abs(i-(n-1)/2)/(n/2);
+    const h=Math.max(1,Math.round((3+10*center)*size*(.75+.25*Math.sin(t*12+i*1.9)+.15*Math.sin(t*27+i*3.1))));
+    for(let k=0;k<h;k++){const f=k/h;P(cx,y-3-k,f<.3?'#ffe27a':f<.65?'#ffa12e':'#ff4d1a');}
+  }
+  for(let i=0;i<4;i++){const a=(t*.8+i*.37)%1;P(x+Math.sin(t*3+i*2)*3,y-8-a*25*size,a<.5?'#ffd27a':'#b0602a');}
+}
+function tree(x){
+  R(x,44,4,46,'#100d1f');line(x,56,x-12,48,'#100d1f');line(x+3,52,x+14,44,'#100d1f');line(x,62,x-9,60,'#100d1f');
+  oval(x+2,38,11,8,'#120f24');oval(x-9,46,6,4,'#120f24');oval(x+14,42,7,5,'#120f24');
+}
+function bird(x,y,open){
+  P(x-1,y+1,'#4a6a80');R(x,y,4,3,'#6d8fa8');R(x+3,y-2,3,3,'#6d8fa8');P(x+4,y-1,'#000');
+  P(x+6,y-1,'#ffb347');if(open)P(x+6,y+1,'#ffb347');P(x+1,y+3,'#ffb347');P(x+3,y+3,'#ffb347');
+}
+function note(x,y,c){R(x+3,y,1,5,c);R(x+4,y,2,1,c);P(x+5,y+1,c);R(x+1,y+4,3,2,c);}
+
+/* ---------- personaje ---------- */
+const C={skin:'#c68642',shade:'#8d5524',hair:'#2b1a10',fur:'#7a5230',furL:'#a8753f',eye:'#140a05',mouth:'#4a1410'};
+function person(x,y,s,flip,o){
+  ctx.save();ctx.translate(flip?x+12*s:x,y);ctx.scale(flip?-s:s,s);
+  const L=o.lift||0;
+  R(3,-6,2,6,C.skin);R(7,-6-L,2,6,C.skin);R(3,-1,3,1,C.shade);R(7,-1-L,3,1,C.shade);
+  R(2,-13,8,7,C.fur);P(2,-6,C.fur);P(5,-6,C.fur);P(8,-6,C.fur);P(4,-11,C.furL);P(7,-9,C.furL);P(3,-8,C.furL);
+  R(4,-19,6,6,C.skin);R(3,-21,7,3,C.hair);R(3,-18,2,5,C.hair);P(9,-20,C.hair);
+  P(8,-17,o.blink?C.shade:C.eye);
+  if(o.mouth)R(8,-15,2,2,C.mouth);else P(8,-15,C.shade);
+  for(const h of o.hands){line(8,-12,h[0],h[1],C.skin);R(h[0],h[1],2,2,C.skin);}
+  if(o.stick){const h=o.hands[0];line(h[0]+1,h[1],h[0]+7,h[1]+5,'#6b4423');}
+  if(o.stones)for(const h of o.hands){R(h[0]+1,h[1]-1,3,3,'#8a8a92');P(h[0]+2,h[1]-1,'#c0c0c8');}
+  ctx.restore();
+}
+const hw=(x,y,s,flip,hx,hy)=>[flip?x+12*s-s*hx:x+s*hx,y+s*hy];
+
+/* ---------- audio ---------- */
+let AC=null,master=null,NB=null,muted=false;
+function initAudio(){
+  if(AC)return;AC=new (window.AudioContext||window.webkitAudioContext)();
+  master=AC.createGain();master.gain.value=.5;master.connect(AC.destination);
+  NB=AC.createBuffer(1,AC.sampleRate*.5,AC.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+}
+function env(g,t,peak,dur){g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+dur);}
+function noise(type,freq,q,peak,dur,delay=0){
+  if(!AC)return;const t=AC.currentTime+delay,s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();
+  s.buffer=NB;f.type=type;f.frequency.value=freq;f.Q.value=q;env(g,t,peak,dur);s.connect(f).connect(g).connect(master);s.start(t);s.stop(t+dur+.05);
+}
+function osc(type,f0,f1,peak,dur,delay=0){
+  if(!AC)return;const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);env(g,t,peak,dur);o.connect(g).connect(master);o.start(t);o.stop(t+dur+.05);
+}
+const SND={
+  clap(){noise('bandpass',1200,.8,.7,.02);noise('bandpass',1200,.8,.7,.02,.011);noise('bandpass',1100,.7,.8,.16,.022);},
+  stomp(){osc('sine',120,40,.9,.28);noise('lowpass',300,1,.3,.08);},
+  log(){osc('sine',210,105,.8,.4);osc('triangle',420,300,.15,.12);noise('lowpass',800,1,.25,.05);},
+  stone(){noise('highpass',2600,1,.6,.05);osc('square',1800,1500,.06,.03);},
+  crackle(){noise('highpass',3000+Math.random()*3000,1,.06+Math.random()*.08,.015);},
+  chirp(){osc('sine',2600,4200,.12,.08);osc('sine',2800,4400,.12,.08,.12);},
+  hum(f){if(!AC)return;const t=AC.currentTime,o=AC.createOscillator(),v=AC.createOscillator(),vg=AC.createGain(),g=AC.createGain(),lp=AC.createBiquadFilter();
+    o.type='triangle';o.frequency.value=f;v.frequency.value=5;vg.gain.value=3;v.connect(vg).connect(o.frequency);
+    lp.type='lowpass';lp.frequency.value=900;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.35,t+.08);g.gain.setValueAtTime(.35,t+.4);g.gain.exponentialRampToValueAtTime(.0001,t+.58);
+    o.connect(lp).connect(g).connect(master);o.start(t);v.start(t);o.stop(t+.6);v.stop(t+.6);},
+  flute(f,d){if(!AC)return;osc('sine',f,f*1.005,.25,d);noise('bandpass',f*2,6,.08,d);}
+};
+
+/* ---------- control de eventos por paso ---------- */
+let evt={},playing=false;
+function step(key,n,fn){if(evt[key]!==n){evt[key]=n;if(playing&&!muted)fn();}}
+
+/* ---------- escenas ---------- */
+function sceneTitle(st){
+  bg(st);fire(130,92,.5,st);
+  if(st>3&&st<4.2){const a=(st-3)/1.2;const x=30+a*70,y=10+a*18;line(x,y,x-8,y-2,'#b8b3e0');P(x,y,'#fff');}
+  person(126,92,1,true,{hands:[[9,-7],[7,-7]]});person(137,92,1,false,{hands:[[9,-7],[7,-7]]});
+}
+const MEL=[392,330,294,330,262,294,330,392];
+function sceneVoice(st){
+  bg(st);fire(104,91,1,st);tree(164);
+  const b=Math.floor(st/.6),ph=b%6,phase=(st/.6)%1;
+  const singing=ph<4&&phase<.8;
+  const x=58;
+  person(x,91,2,false,{hands:[[9,-7],[7,-6]],mouth:singing,blink:(st%3.3)<.12});
+  if(ph<4)step('hum',b,()=>SND.hum(MEL[(Math.floor(b/6)*4+ph)%MEL.length]*.75));
+  const chirp=ph===5&&phase<.6;
+  if(ph===5)step('ch',b,()=>SND.chirp());
+  bird(150,47,chirp);
+  if(chirp){line(158,44,161,42,'#ffe27a');line(158,47,162,47,'#ffe27a');}
+  const [mx,my]=hw(x,91,2,false,10,-15);
+  for(let k=0;k<4;k++){
+    const nb=b-(b%6<4?b%6:3)+k-6*0; // notas de la frase actual
+    const born=(Math.floor(b/6)*6+k)*.6;const age=st-born;
+    if(age>0&&age<2.6&&k<4){ctx.globalAlpha=Math.max(0,1-age/2.6);note(mx+age*9,my-6-age*10+Math.sin(age*5)*2,['#ffe27a','#ffb347','#9fd3ff','#ffa0c8'][k]);ctx.globalAlpha=1;}
+  }
+}
+function sceneClap(st){
+  bg(st);fire(96,91,1.1,st);
+  const b=st*2,n=Math.floor(b),ph=b-n;
+  const gap=Math.round(4*Math.abs(Math.cos(Math.PI*b/2)));
+  const lift=Math.round(-2*Math.min(0,Math.sin(Math.PI*b)));
+  const pose={hands:[[12,-12-gap],[12,-12+gap]],lift,mouth:n%4===3};
+  const people=[[26,false],[52,false],[140,true]];
+  for(const [x,f] of people){
+    person(x,91,2,f,pose);
+    if(n%2===1&&ph<.45){const [hx,hy]=hw(x,91,2,f,13,-12);ring(hx,hy,3+ph*14,ph<.2?'#ffe27a':'#ffa12e');}
+    if(n%2===0&&ph<.35){const [fx]=hw(x,91,2,f,8,0);for(let i=0;i<4;i++)P(fx-4-ph*10+i*2,90-ph*6-(i%2),'#6b5540');for(let i=0;i<4;i++)P(fx+6+ph*10-i*2,90-ph*6-(i%2),'#6b5540');}
+  }
+  step('beat',n,()=>n%2?SND.clap():SND.stomp());
+}
+const LOG=[0,3,6],STONE=[2,4];
+function lastHit(e,pat){let a=99;for(let k=0;k<16;k++){const s=Math.floor(e)-k;if(s<0)break;if(pat.includes(((s%8)+8)%8)){a=e-s;break;}}return a;}
+function sceneStrike(st){
+  bg(st);fire(176,91,.7,st);
+  const e=st*4,n=Math.floor(e);
+  const la=lastHit(e,LOG),sa=lastHit(e,STONE);
+  const shake=la<.35?1:0;
+  // tronco hueco
+  const ly=78+shake;
+  R(76,ly,46,12,'#6b4423');R(76,ly,46,1,'#8a5a2e');R(76,ly+11,46,1,'#4a2c14');
+  for(let i=0;i<8;i++)line(80+i*5,ly+3+(i%3),84+i*5,ly+3+(i%3),'#56361b');
+  R(73,ly+1,4,10,'#8a5a2e');R(74,ly+3,2,6,'#1a0f08');R(121,ly+1,3,10,'#8a5a2e');
+  if(la<1.2){for(let r=0;r<2;r++){const rr=4+la*10+r*6;ctx.globalAlpha=Math.max(0,1-la/1.2);ring(99,ly-2,rr,'#ffb347');ctx.globalAlpha=1;}}
+  // percusionista del tronco
+  const down=la<.5;
+  person(50,91,2,false,{hands:down?[[15,-9],[9,-7]]:[[13,-17],[9,-7]],stick:true,blink:(st%2.7)<.1});
+  // percusionista de piedras
+  const g=sa<.4?0:3;
+  person(130,91,2,true,{hands:[[12,-12-g],[12,-12+g]],stones:true});
+  if(sa<.3){const [hx,hy]=hw(130,91,2,true,13,-12);for(let i=0;i<6;i++){const a=i/6*Math.PI*2;P(hx+Math.cos(a)*(3+sa*16),hy+Math.sin(a)*(3+sa*16),'#fff3a0');}}
+  step('e',n,()=>{const k=n%8;if(LOG.includes(k))SND.log();if(STONE.includes(k))SND.stone();});
+}
+function sceneEnd(st){
+  bg(st,Math.min(.5,st*.1));fire(96,91,Math.max(.3,1-st*.12),st);
+  if(st>2.5){
+    const a=Math.min(1,(st-2.5)/1.5),y=40+Math.sin(st*2)*2;
+    ctx.globalAlpha=a*.25;oval(96,y+2,30,10,'#fff3c8');ctx.globalAlpha=a;
+    R(72,y,48,5,'#e8dcc0');R(72,y+4,48,1,'#b8a888');R(67,y-2,6,9,'#e8dcc0');R(119,y-1,5,7,'#e8dcc0');
+    for(const hx of [84,92,100,108])R(hx,y+1,2,2,'#3a2a1c');
+    ctx.globalAlpha=1;
+    const nb=Math.floor((st-3)/.5);if(st>3&&nb<3)step('fl',nb,()=>SND.flute([523,587,659][nb],.45));
+  }
+}
+
+const SCENES=[
+  {dur:8,draw:sceneTitle,name:'Inicio',title:['CAPÍTULO 1','EL CUERPO,<br>PRIMER INSTRUMENTO'],
+   text:'Mucho antes de las guitarras o los pianos, los primeros humanos vivían en pequeños grupos, alrededor del fuego...'},
+  {dur:12,draw:sceneVoice,name:'La voz',
+   text:'El primer instrumento fue la VOZ. Quizá hace más de 100.000 años ya se cantaba para calmar a los niños, llamarse a distancia o imitar a los animales.'},
+  {dur:12,draw:sceneClap,name:'El ritmo',
+   text:'Luego, PALMAS y PISADAS. Moverse juntos al mismo pulso unía al grupo: así nace el RITMO, en rituales, danzas y celebraciones.'},
+  {dur:14,draw:sceneStrike,name:'Idiófonos',
+   text:'Golpear PIEDRAS, PALOS y TRONCOS HUECOS daba sonidos distintos: agudos, graves, secos. Son los IDIÓFONOS, objetos que suenan con su propio cuerpo: los primeros instrumentos.'},
+  {dur:9,draw:sceneEnd,name:'Continuará',title:['PRÓXIMO: CAPÍTULO 2','LAS FLAUTAS<br>DE HUESO'],
+   text:'Hace unos 40.000 años alguien hizo agujeros en un hueso de ave y sopló... Continuará.'}
+];
+const TOTAL=SCENES.reduce((a,s)=>a+s.dur,0);
+
+/* ---------- UI ---------- */
+const cap=document.getElementById('cap'),titleEl=document.getElementById('title'),segs=document.getElementById('segs');
+SCENES.forEach((s,i)=>{const d=document.createElement('div');d.className='seg';d.title=s.name;d.innerHTML='<i></i>';d.onclick=()=>jump(i);segs.appendChild(d);});
+let T=0,last=0,curScene=-1,shownLen=-1;
+function jump(i){T=SCENES.slice(0,i).reduce((a,s)=>a+s.dur,0);evt={};curScene=-1;}
+document.getElementById('go').onclick=()=>{initAudio();AC.resume();document.getElementById('start').remove();playing=true;};
+const pp=document.getElementById('pp');
+pp.onclick=()=>{if(!AC)return;if(T>=TOTAL-.01){jump(0);}playing=!playing;pp.textContent=playing?'❚❚':'▶';};
+document.getElementById('rs').onclick=()=>{jump(0);if(AC){playing=true;pp.textContent='❚❚';}};
+const mu=document.getElementById('mu');
+mu.onclick=()=>{muted=!muted;mu.textContent='SONIDO: '+(muted?'NO':'SÍ');};
+addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();pp.click();}});
+
+function frame(ts){
+  const dt=Math.min(.05,(ts-last)/1000||0);last=ts;
+  if(playing){T+=dt;if(T>=TOTAL){T=TOTAL-.001;playing=false;pp.textContent='▶';}}
+  let acc=0,i=0;while(i<SCENES.length-1&&T>=acc+SCENES[i].dur){acc+=SCENES[i].dur;i++;}
+  const sc=SCENES[i],st=T-acc;
+  if(i!==curScene){curScene=i;shownLen=-1;titleEl.querySelector('.a').innerHTML=sc.title?sc.title[0]:'';titleEl.querySelector('.b').innerHTML=sc.title?sc.title[1]:'';}
+  sc.draw(st);
+  if(playing&&!muted&&i<4&&Math.random()<dt*3)SND.crackle();
+  const fade=Math.max(0,1-st/.6,1-(sc.dur-st)/.6);
+  if(fade>0){ctx.globalAlpha=fade;R(0,0,W,H,'#000');ctx.globalAlpha=1;}
+  titleEl.style.opacity=sc.title?Math.max(0,Math.min(1,(st-(i?3.5:.8))/.8,(sc.dur-st-.6)/.6)):0;
+  const len=Math.min(sc.text.length,Math.floor(st*38));
+  if(len!==shownLen){shownLen=len;cap.textContent=sc.text.slice(0,len);}
+  [...segs.children].forEach((d,k)=>{const a=SCENES.slice(0,k).reduce((x,s)=>x+s.dur,0);d.firstChild.style.transform=`scaleX(${Math.max(0,Math.min(1,(T-a)/SCENES[k].dur))})`;});
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

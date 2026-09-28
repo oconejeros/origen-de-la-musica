@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Origen de la Música · Cap. 10</title>
+</head>
+<body>
+<script src="motor.js"></script>
+<script>
+/* ===================== CAPÍTULO 10 · LA MÚSICA ELÉCTRICA ===================== */
+const LEON={skin:'#e8c0a0',shade:'#b89070',hair:'#3a2a1a',cloth:'#1a1a22',clothL:'#e8e8f0',legs:'#1a1a22'};
+const ROCK={skin:'#e0b090',shade:'#b08060',hair:'#1a1210',cloth:'#e8e8f0',clothL:'#c83030',legs:'#2a3a6a'};
+const ROCK2={skin:'#8a5a3a',shade:'#5a3a1a',hair:'#1a1210',cloth:'#c83030',clothL:'#1a1a1a',legs:'#1a1a1a'};
+const ROCK3={skin:'#e8c0a0',shade:'#b89070',hair:'#c89040',cloth:'#2a2a2a',clothL:'#e8c040',legs:'#2a2a2a'};
+const SYN={skin:'#e8c0a0',shade:'#b89070',hair:'#6a3a1a',cloth:'#e8e0cc',clothL:'#3a3a3a',legs:'#3a3a5a'};
+const ENG={skin:'#d8a070',shade:'#a87040',hair:'#2a1a10',cloth:'#6a8aa8',clothL:'#e8e0cc',legs:'#3a3a4a'};
+
+srand(1010);
+const NIGHT=['#070818','#0c0f28','#141838','#1c2044','#262a50'];
+const BLD=[...Array(12)].map((_,k)=>[k*17-4,26+((k*41)%34)]);
+function neonCity(t){
+  sky(NIGHT);stars(t,40);
+  for(const [x,h] of BLD){R(x,92-h,16,h,'#16162a');for(let y=96-h;y<88;y+=5)for(let wx=x+2;wx<x+14;wx+=4)if((wx*7+y*3)%5<2)P(wx,y,'#ffcf70');}
+  const blink=Math.sin(t*5)>-.6;
+  if(blink){label('DISCOS',44,40,'#ff5aa0','rgba(40,0,30,.8)');}label('ROCK',150,34,'#5af0ff','rgba(0,20,40,.8)');
+  R(0,92,W,16,'#1a1a24');R(0,92,W,1,'#3a3a48');for(let x=0;x<W;x+=20)R((x+t*30)%W,99,8,1,'#e8e070');
+  const cx=((t*40)%300)-60;R(cx,86,30,6,'#c83050');R(cx+6,82,16,5,'#c83050');R(cx+8,83,5,3,'#9fd3ff');R(cx+15,83,5,3,'#9fd3ff');oval(cx+6,92,3,3,'#101010');oval(cx+23,92,3,3,'#101010');P(cx+29,88,'#ffe27a');
+}
+function spot(x,y0,w,c){alpha(.12,()=>{for(let y=y0;y<100;y++){const k=(y-y0)/(100-y0);R(x-w*k,y,2*w*k+2,1,c);}});}
+/* ---- escenas ---- */
+function sTitle(st){neonCity(st);}
+/* theremin */
+const THM=[[440,2],[523,1],[494,1],[440,2],[330,2],[349,1],[392,1],[440,2],[392,1],[349,1],[330,4]];
+function sTheremin(st){
+  R(0,0,W,H,'#0a0812');R(0,92,W,16,'#1a1420');spot(96,0,40,'#c8c0ff');
+  const beat=.42,b=Math.floor((st-1)/beat);let acc=0,ni=-1,start=false;for(let i=0;i<THM.length;i++){if(b>=acc&&b<acc+THM[i][1]){ni=i;start=b===acc;break;}acc+=THM[i][1];}
+  const on=st>1&&ni>=0&&st<13.2,f=on?THM[ni][0]:330;
+  R(80,62,40,14,'#6a3a1a');R(80,62,40,1,'#8a5a2a');R(84,76,3,16,'#4a2a10');R(113,76,3,16,'#4a2a10');R(90,66,20,6,'#2a1a10');alpha(.5+.3*Math.sin(st*3),()=>R(92,68,4,2,'#ff8a40'));
+  R(118,24,2,38,'#c8c8d0');ring(78,58,4,'#c8c8d0');line(80,62,80,60,'#c8c8d0');
+  const hx=Math.round(108-(f-330)/(523-330)*12);
+  person(52,92,2,false,{pal:LEON,wear:'coat',hands:[[(hx-52)/2,-22+Math.sin(st*5)],[13,-13+(on?Math.sin(st*2)*2:0)]]});
+  if(on)for(let k=0;k<3;k++){const a=((st*1.5+k/3)%1);alpha(1-a,()=>{ring(119,40,3+a*16,'#c8a0ff');});}
+  if(on&&start){const prev=ni>0?THM[ni-1][0]:f;step('t',b,()=>tone({f:prev,f1:f,glide:.12,peak:.22,dur:THM[ni][1]*beat,att:.05,sus:true,rel:.08,vib:6,vibD:f*.015}));}
+  if(on)alpha(.8,()=>notesFrom(119,30,st,.9,2.2,1,1,12.5));
+  label('1920: THEREMIN',96,4,'#c8a0ff');label('SE TOCA SIN TOCARLO!',96,98,'#ffe27a');
+}
+/* rock and roll */
+const BARS=[110,110,110,110,146.8,146.8,110,110,164.8,146.8,110,164.8];
+function sRock(st){
+  R(0,0,W,H,'#1a0e1e');for(let k=0;k<30;k++)P((k*37)%W,(k*23)%60,'#6a5a8a');R(0,70,W,38,'#2a1a14');R(0,70,W,2,'#4a3020');
+  spot(40,0,26,'#ff5050');spot(96,0,26,'#5af0ff');spot(152,0,26,'#ffe27a');
+  const e=(st-1)/.17,n=Math.floor(e),on=st>1&&st<13.3,bar=Math.floor(n/8)%12,k=((n%8)+8)%8,root=BARS[bar],kick=on&&(k===0||k===4)&&(e-n)<.5;
+  // amplificador
+  R(66,54,20,18,'#2a2a2a');R(68,56,16,14,'#5a4a3a');oval(76,63,5+(kick?1:0),5+(kick?1:0),'#1a1a1a');oval(76,63,2,2,'#3a3a3a');
+  // guitarrista
+  const strum=on&&(e-n)<.5;
+  person(26,92,2,false,{pal:ROCK,wear:'shirt',hands:[[15,strum?-6:-9],[22,-13]],lift:on&&k%4===0?1:0});
+  const [gx,gy]=hw(26,92,2,false,13,-8);oval(gx,gy,5,3,'#d02a2a');oval(gx-2,gy+1,4,3,'#d02a2a');R(gx-1,gy-1,3,1,'#f0f0f0');line(gx+3,gy-1,gx+20,gy-8,'#2a1a10');R(gx+19,gy-10,3,3,'#2a1a10');line(gx-4,gy+2,66,66,'#1a1a1a');
+  // contrabajo
+  person(112,92,2,true,{pal:ROCK2,wear:'shirt',hands:[[12,-8],[14,-22]]});oval(100,78,6,9,'#8a4a20');oval(100,72,4,5,'#8a4a20');line(101,68,103,40,'#2a1a10');
+  // batería
+  person(154,86,1.6,true,{pal:ROCK3,wear:'shirt',hands:[[14,on&&k%2===0&&(e-n)<.4?-8:-12],[16,on&&(k===2||k===6)&&(e-n)<.4?-6:-10]]});
+  oval(150,84,8,8,'#e8e8f0');oval(150,84,6,6,'#3a4ac8');R(136,74,10,4,'#c8c8d0');line(166,62,176,64,'#e8c040');line(171,63,171,88,'#8a8a90');
+  if(on)step('rk',n,()=>{
+    pluck([root,root*1.5,root*1.68,root*1.5,root*1.78,root*1.5,root*1.68,root*1.5][k],{dur:.25,hl:.12,lp:2600,peak:.3,dist:4});
+    pluck(root/2*[1,1.25,1.5,1.68,2,1.68,1.5,1.25][k],{dur:.3,hl:.15,lp:700,peak:.45});
+    if(k===0||k===4)SND.kick(0,.8);if(k===2||k===6)SND.snare(0,.35);SND.hat(0,false,.12);
+    if(bar===8&&k===0)[659,784,880,784].forEach((f,i)=>pluck(f,{dur:.4,hl:.25,lp:3500,peak:.25,dist:5,delay:i*.17}));});
+  if(on)notesFrom(gx+10,gy-20,st,.7,2,1,1,12.8);
+  label('1950: ROCK AND ROLL',96,4,'#ffe27a');
+}
+/* Moog */
+const ARP=[110,220,165,220,131,262,196,262,98,196,147,196,123,247,185,247];
+function sMoog(st){
+  R(0,0,W,H,'#2a2a30');R(0,88,W,20,'#3a3438');
+  R(14,8,164,54,'#101014');
+  for(let m=0;m<7;m++){const x=18+m*23;R(x,12,20,46,'#2a2a2e');R(x,12,20,2,'#c8c8d0');for(let r=0;r<3;r++)for(let c=0;c<2;c++){oval(x+6+c*9,22+r*11,3,3,'#e8e8f0');P(x+6+c*9,20+r*11,'#1a1a1a');}for(let j=0;j<3;j++)R(x+3+j*6,54,2,2,'#e8c040');}
+  const cols=['#e83030','#30a0e8','#e8c040','#40c060','#e060c0'];
+  for(let c=0;c<5;c++){const x0=22+c*31,x1=x0+30+((c*17)%24),sag=10+c*3;let px=x0,py=55;for(let i=1;i<=12;i++){const u=i/12,x=x0+(x1-x0)*u,y=55+Math.sin(Math.PI*u)*sag;line(px,py,x,y,cols[c]);px=x;py=y;}}
+  const cut=400+3000*(.5+.5*Math.sin((st-1)*.9-1.57));
+  R(120,62,48,24,'#101a14');R(120,62,48,1,'#4a4a52');
+  const N=Math.max(1,Math.round(cut/450));for(let x=0;x<46;x++){let y=0;for(let n=1;n<=N;n++)y+=Math.sin(n*(x*.28+st*6))/n;P(121+x,74-y*5,'#6af08a');}
+  R(20,78,80,8,'#f0ece0');for(let k=0;k<20;k++)R(20+k*4,78,1,8,'#8a8a8a');for(let k=0;k<20;k++)if([1,2,4,5,6].includes(k%7))R(22+k*4,78,2,5,'#1a1a1a');
+  const e=(st-1)/.15,n=Math.floor(e),on=st>1&&st<13.3;
+  if(on){const key=(ARP[n%16]/10|0)%20;alpha(.7,()=>R(20+key*4,78,4,8,'#ffe27a'));}
+  person(92,104,2,true,{pal:SYN,wear:'shirt',hands:[[16,-26+Math.sin(st)*2],[10,-8]],glasses:true});
+  if(on)step('ar',n,()=>{tone({type:'sawtooth',f:ARP[n%16],peak:.14,dur:.14,lp:cut,q:9,att:.004});if(n%4===0)tone({type:'sawtooth',f:ARP[n%16]/2,peak:.12,dur:.5,lp:cut*.4,q:4});});
+  label('1964: SINTETIZADOR MOOG',96,98,'#ffe27a');label('FILTRO: '+Math.round(cut)+' HZ',144,58,'#6af08a','rgba(0,0,0,0)');
+}
+/* estudio multipista */
+const TR=[[1,'BATERIA','#e83030'],[3.5,'BAJO','#30a0e8'],[6,'TECLADO','#e8c040'],[8.5,'VOZ','#40c060']];
+function sStudio(st){
+  R(0,0,W,H,'#2a2226');R(10,6,120,40,'#101820');R(10,6,120,2,'#5a5a62');R(10,44,120,2,'#5a5a62');
+  alpha(.25,()=>R(12,8,116,36,'#3a5a7a'));
+  sil(40,42,'#0a0a10');oval(36,38,6,4,'#0a0a10');sil(70,42,'#0a0a10');R(76,30,1,12,'#0a0a10');sil(100,42,'#0a0a10');oval(108,40,4,3,'#0a0a10');
+  // cinta
+  R(140,6,44,50,'#3a3a42');R(140,6,44,2,'#6a6a72');for(const cx of [152,172]){oval(cx,20,9,9,'#7a5a3a');oval(cx,20,3,3,'#c8c8d0');const a=st*4;for(let k=0;k<3;k++){const b=a+k*2.1;line(cx,20,cx+Math.cos(b)*7,20+Math.sin(b)*7,'#3a3a42');}}
+  line(144,30,180,30,'#5a3a1a');R(156,38,12,6,'#c8c8d0');
+  // consola
+  R(0,58,W,34,'#4a4a52');R(0,58,W,2,'#6a6a72');R(0,92,W,16,'#1a1418');
+  TR.forEach(([t0,name,c],i)=>{const x=20+i*36,lv=clamp((st-t0)/.8),y=84-lv*16;R(x+4,66,2,20,'#1a1a1a');R(x,y,10,4,c);
+    const vu=lv*(.5+.5*Math.abs(Math.sin(st*(7+i*3))));R(x+14,66,4,20,'#1a1a1a');R(x+14,86-vu*20,4,vu*20,vu>.8?'#e83030':'#40c060');
+    txt(name,x+8,60,st>=t0?c:'#6a6a72',1);});
+  person(170,104,1.8,true,{pal:ENG,wear:'shirt',phones:true,hands:[[14,-18],[16,-17]]});
+  const e=(st-1)/.2,n=Math.floor(e),k=((n%8)+8)%8,on=st>1&&st<13.2,prog=[131,131,175,196][Math.floor(n/8)%4];
+  if(on)step('st',n,()=>{
+    if(k===0||k===5)SND.kick(0,.7);if(k===2||k===6)SND.snare(0,.3);SND.hat(0,false,.08);
+    if(st>3.5)pluck(prog/2*(k%4===3?1.5:1),{dur:.3,hl:.15,lp:800,peak:.4});
+    if(st>6&&k%4===0)[1,1.26,1.5].forEach(m=>SND.organ(prog*2*m,.7,{peak:.5}));
+    if(st>8.5&&k%2===0)sing([392,440,392,330,392,440,523,440][(n/2|0)%8],.38,['a','o','e','a'][(n/2|0)%4],{peak:.14});});
+  label('GRABACION MULTIPISTA',70,50,'#ffe27a');
+}
+function sEnd(st){
+  R(0,0,W,H,'#101014');R(56,18,80,60,'#2a2a30');R(60,22,72,50,'#0a0a10');R(90,78,12,8,'#2a2a30');R(76,86,40,4,'#2a2a30');
+  const g=clamp((st-2)/3);srand(Math.floor(st*20));
+  for(let y=22;y<72;y+=2)for(let x=60;x<132;x+=2){const r=rnd();if(g<1&&r>.5+g*.5)R(x,y,2,2,r>.8?'#c8c8d0':'#5a5a62');}
+  if(g>0)alpha(g,()=>{for(let k=0;k<8;k++)for(let j=0;j<5;j++)if((k+j+Math.floor(st*3))%3)R(66+k*8,28+j*8,5,5,['#40c060','#30a0e8','#e8c040'][(k+j)%3]);txt('01001101',96,64,'#6af08a',1);});
+  if(st>4.5){const nb=Math.floor((st-4.5)/.2);if(nb<12)step('e',nb,()=>tone({type:'square',f:[523,659,784,1047][nb%4],peak:.06,dur:.15,lp:3000}));}
+}
+
+iniciar({num:10,prev:'capitulo9.html',next:'capitulo11.html',escenas:[
+  {dur:8,draw:sTitle,name:'Inicio',title:['CAPÍTULO 10','LA MÚSICA<br>ELÉCTRICA'],
+   text:'El siglo XX se llenó de cables, válvulas y altavoces. Los inventores se preguntaron: ¿se puede HACER música con electricidad?'},
+  {dur:14,draw:sTheremin,name:'Theremin',
+   text:'En 1920, el ruso LEÓN THEREMIN creó un instrumento que se toca SIN TOCARLO: moviendo las manos cerca de dos antenas. Su sonido fantasmal llenó películas de ciencia ficción.'},
+  {dur:14,draw:sRock,name:'Rock and roll',
+   text:'En los años 30, las guitarras recibieron IMANES y CABLES para amplificarse. En los 50, la GUITARRA ELÉCTRICA hizo nacer el ROCK AND ROLL.'},
+  {dur:14,draw:sMoog,name:'Sintetizador',
+   text:'En 1964, ROBERT MOOG presentó su SINTETIZADOR: circuitos que crean ondas eléctricas y las transforman con filtros. ¡Sonidos que nunca habían existido!'},
+  {dur:14,draw:sStudio,name:'El estudio',
+   text:'El estudio se volvió un instrumento más: con cintas MULTIPISTA se graba cada instrumento por separado y después se mezclan.'},
+  {dur:9,draw:sEnd,name:'Continuará',title:['PRÓXIMO: CAPÍTULO 11','LA ERA<br>DIGITAL'],
+   text:'Muy pronto, los sonidos se convertirían en NÚMEROS... Continuará.'}
+]});
+</script>
+</body>
+</html>

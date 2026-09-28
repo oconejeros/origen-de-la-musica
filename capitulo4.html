@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Origen de la Música · Cap. 4</title>
+</head>
+<body>
+<script src="motor.js"></script>
+<script>
+/* ===================== CAPÍTULO 4 · LA PRIMERA CANCIÓN ESCRITA ===================== */
+const SUM={skin:'#b8804a',shade:'#8a5a2a',hair:'#1a1210',cloth:'#e8e0cc',clothL:'#c8bca0'};
+const SUM2={skin:'#a87040',shade:'#7a4a20',hair:'#2a1a10',cloth:'#c8a878',clothL:'#a8885a'};
+const EGY={skin:'#a0643a',shade:'#744420',hair:'#0a0a0a',cloth:'#f0ece0',clothL:'#e0b040'};
+const EGY2={skin:'#8a5430',shade:'#5a3418',hair:'#0a0a0a',cloth:'#f0ece0',clothL:'#3a7ab0'};
+
+srand(44);
+const FAR=mkRidge(70,[[2,.04,1],[1,.13,0]]);
+const SUNSET=['#3a3a78','#6a4a7a','#b0606a','#e0885a','#f0b060'],NIGHT=['#070818','#0e1030','#181a40','#22244a','#2c2c50'];
+function palm(x,y,t){
+  for(let i=0;i<26;i++)R(x+Math.sin(i*.08)*3,y-i,2,1,i%3?'#6a4a2a':'#5a3a1a');
+  const tx=x+Math.sin(26*.08)*3,ty=y-26;
+  for(let k=0;k<7;k++){const a=-Math.PI+k*Math.PI/6+Math.sin(t*1.5+k)*.05;for(let j=0;j<12;j++)P(tx+Math.cos(a)*j,ty+Math.sin(a)*j*.4+j*j*.05,'#3a6a2a');}
+}
+function ziggurat(x,y,dark){
+  const c=dark?['#2a2030','#241a2a','#30243a']:['#b08050','#9a6a40','#c8986a'];
+  R(x-34,y-12,68,12,c[0]);R(x-24,y-22,48,10,c[1]);R(x-14,y-32,28,10,c[0]);R(x-8,y-40,16,8,c[2]);R(x-2,y-37,4,5,'#3a2a1a');
+  R(x-3,y-32,6,32,c[2]);for(let k=0;k<32;k+=2)R(x-3,y-32+k,6,1,c[1]);
+  R(x+20,y-12,14,12,c[1]);R(x+14,y-22,10,10,c[0]);
+}
+function meso(t,cols=SUNSET,dark=false){
+  sky(cols);if(!dark)sun(40,44,8);else{stars(t,50);moon(40,16);}
+  ridge(FAR,dark?'#1a1628':'#8a6a6a');ziggurat(130,86,dark);
+  R(0,86,W,7,dark?'#1a2a44':'#3a6a8a');for(let k=0;k<8;k++)R((k*31+t*8)%W,88+(k%3),5,1,dark?'#2a3a5a':'#7ab0d0');
+  R(0,93,W,15,dark?'#2a2218':'#c8a060');R(0,93,W,1,dark?'#3a3020':'#d8b070');
+  palm(20,94,t);palm(176,95,t+1);
+}
+/* ---- escenas ---- */
+function sTitle(st){
+  meso(st);
+  for(let i=0;i<3;i++){const x=((st*6+i*40)%150)-10;person(x,94,1,false,{pal:i%2?SUM2:SUM,wear:'tunic',hair:i===1?'none':'short',hands:[[9,-7],[7,-7]],lift:Math.round(Math.abs(Math.sin(st*5+i)))});}
+}
+/* lira de Ur */
+const UR_X=[64,70,76,82,88,94,100,106,112],URF=[294,330,349,392,440,494,523,587,659],URPAT=[0,2,4,2,3,1,0,-1,4,5,6,5,4,3,2,-1,0,2,4,6,8,6,4,-1];
+function lyreUr(st,idx,lastAge){
+  R(50,66,72,24,'#4a2e18');R(50,66,72,2,'#6a4428');
+  for(let r=0;r<3;r++)for(let k=0;k<10;k++)R(54+k*7,70+r*6,5,4,[(k+r)%3?'#2a4aa8':'#e8e0cc','#b04030','#e8b830'][(k+r*2)%3]);
+  line(58,66,54,18,'#6a4428');line(59,66,55,18,'#4a2e18');line(116,66,122,22,'#6a4428');line(117,66,123,22,'#4a2e18');
+  line(50,19,128,24,'#7a5030');line(50,20,128,25,'#5a3a20');
+  UR_X.forEach((x,i)=>{const top=19+(x-50)*5/78+2,a=lastAge[i],amp=a<1?1.3*Math.exp(-a*3):0;
+    for(let y=top;y<66;y++){const u=(y-top)/(66-top);P(x+amp*Math.sin(Math.PI*u)*Math.sin(st*80+i),y,a<.3?'#fff3a0':'#d8c8a0');}});
+  // cabeza de toro
+  oval(44,56,8,9,'#e8b830');oval(44,52,6,4,'#f0c848');line(37,48,32,40,'#e8b830');line(51,48,56,40,'#e8b830');P(32,39,'#2a4aa8');P(56,39,'#2a4aa8');
+  P(40,54,'#fff');P(47,54,'#fff');P(40,55,'#1a1a3a');P(47,55,'#1a1a3a');
+  R(38,62,12,14,'#2a4aa8');for(let k=0;k<5;k++)R(38,64+k*3,12,1,'#1a3080');
+}
+function sLyre(st){
+  R(0,0,W,H,'#3a2418');for(let y=6;y<34;y+=10)for(let x=0;x<W;x+=8)R(x+(y%20?4:0),y,6,6,(x+y)%24?'#2a4aa8':'#e8b830');
+  R(0,36,W,1,'#e8b830');R(0,94,W,14,'#5a3a22');
+  const b=Math.floor(st/.36),on=st>1&&st<12.8,idx=on?URPAT[b%URPAT.length]:-1;
+  const lastAge=UR_X.map((_,i)=>{for(let k=0;k<24;k++){const bb=b-k;if(bb<0||bb*.36<1)break;if(URPAT[bb%URPAT.length]===i)return st-bb*.36;}return 99;});
+  const px=120,py=100,t=idx>=0?idx:4,[lxh,lyh]=loc(px,py,2,true,UR_X[t],44);
+  person(px,py,2,true,{pal:SUM,wear:'tunic',hair:'none',hands:[[clamp(lxh,0,18),clamp(lyh,-26,-6)],[14,-12]],blink:(st%3.2)<.1});
+  lyreUr(st,idx,lastAge);
+  if(on&&idx>=0)step('l',b,()=>pluck(URF[idx],{dur:1.3,hl:.4,lp:3000,peak:.45}));
+  notesFrom(96,18,st,.72,2.2,1,1,12.5);
+  if(st>2)alpha(st-2,()=>label('LIRA DE UR - 4.500 AÑOS',96,98));
+}
+/* Egipto */
+function pyramids(){for(const [x,h,c] of [[40,30,'#d8a860'],[78,22,'#c89850'],[150,26,'#d0a058']])for(let i=0;i<h;i++){R(x-i,78-h+i,2*i+1,1,c);P(x+i,78-h+i,'#a87838');}}
+function sEgypt(st){
+  sky(['#4a80c8','#70a0d8','#98bce0','#c8d0c8','#e8d0a0']);sun(170,14,6,'#fff8d0','#fff0a0');
+  pyramids();R(0,78,W,6,'#3a6a8a');R(0,84,W,24,'#d8b070');R(0,84,W,1,'#e8c888');palm(10,86,st);palm(182,86,st+1);
+  const y=100;
+  // arpa de arco
+  const harpX=48,base=y-2,hb=Math.floor(st/.3),hOn=(st>.8&&st<5.5)||(st>9&&st<12.8),hi=hOn?[0,2,4,6,5,3,1,-1][hb%8]:-1;
+  person(22,y,2,false,{pal:EGY,wear:'dress',hair:'long',hands:[[16,-16+(hi>=0?hi*1.4:4)],[14,-8]]});
+  let px=harpX,py=base;for(let i=1;i<=16;i++){const u=i/16,xx=harpX-8*Math.sin(Math.PI*u)+u*4,yy=base-46*u;line(px,py,xx,yy,'#7a4a24');line(px+1,py,xx+1,yy,'#9a6a34');px=xx;py=yy;}
+  for(let k=0;k<7;k++){const u=(k+1)/8,yy=base-46*u,xx=harpX-8*Math.sin(Math.PI*u)+u*4+1,ex=harpX+u*4+2;line(xx,yy,ex+6-u*4,yy,hi===k&&(st%.3)<.15?'#fff3a0':'#e0d0a8');}
+  if(hi>=0)step('hp',hb,()=>pluck([262,294,330,392,440,523,587][hi],{dur:1.2,hl:.4,lp:3000,peak:.4}));
+  // sistro
+  const shake=Math.sin(st*22)*((st>.8&&st<5.5)||(st>9&&st<12.8)?2:0);
+  person(94,y,2,false,{pal:EGY2,wear:'dress',hair:'long',hands:[[13,-24],[10,-9]]});
+  const [sx,sy]=hw(94,y,2,false,14,-26);
+  line(sx,sy+6,sx+shake*.5,sy,'#c8a040');ring(sx+shake,sy-5,4,'#e8c050');for(let k=0;k<3;k++){line(sx-4+shake,sy-7+k*2,sx+4+shake,sy-7+k*2,'#e8c050');P(sx-2+shake+k,sy-7+k*2,'#fff8c0');}
+  if(shake)step('ss',Math.floor(st*5),()=>{for(let k=0;k<3;k++)noise('highpass',6000,2,.12,.05,k*.04);});
+  // trompeta
+  const tb=Math.floor((st-5.2)/.7),tOn=(st>5.2&&st<9)||(st>9.2&&st<12.8);
+  person(150,y,2,true,{pal:EGY,wear:'tunic',hair:'short',hands:[[16,-17],[13,-15]]});
+  const [mx,my]=hw(150,y,2,true,9,-15),[ex,ey]=hw(150,y,2,true,26,-19);line(mx,my,ex,ey,'#e0c060');line(ex,ey-2,ex,ey+2,'#e0c060');line(ex-1,ey-1,ex-1,ey+1,'#e0c060');
+  if(tOn){step('tr',tb,()=>SND.brass([349,262,349,392,262,349][((tb%6)+6)%6],.55,{peak:.14,bright:2400}));alpha(.6,()=>ring(ex-3,ey,3+((st-5.2)%.7)*14,'#ffe27a'));}
+  if(st>5.2&&st<9)label('TUTANKAMON: TOCADAS EN 1939',96,6);
+}
+/* tablilla */
+srand(9);
+const WEDGES=[];for(let r=0;r<8;r++)for(let k=0;k<11;k++)if(rnd()>.18)WEDGES.push([70+k*5,24+r*7+(r>3?4:0),rnd()<.6?0:1]);
+function wedge(x,y,v,c){if(v){R(x,y,3,2,c);P(x+1,y+2,c);P(x+1,y+3,c);}else{R(x,y,2,3,c);P(x+2,y+1,c);P(x+3,y+1,c);}}
+function sTablet(st){
+  R(0,0,W,H,'#2a1a14');alpha(.3,()=>oval(96,56,90,50,'#7a4a2a'));
+  oval(96,52,36,40,'#8a6848');R(62,18,68,70,'#b89068');R(64,16,64,74,'#b89068');R(62,18,2,70,'#9a7450');R(64,86,64,2,'#9a7450');
+  line(66,52,126,52,'#6a4a30');line(66,53,126,53,'#6a4a30');
+  const n=Math.floor(clamp((st-1)/9)*WEDGES.length);
+  for(let i=0;i<n;i++){const [x,y,v]=WEDGES[i];wedge(x,y,v,'#5a3a22');}
+  if(n<WEDGES.length&&st>1){const [x,y]=WEDGES[n];line(x+3,y-1,x+22,y-24,'#c8b070');line(x+4,y-1,x+23,y-24,'#a89050');R(x+18,y-22,8,6,'#b8804a');
+    step('w',n,()=>SND.tap(0,.3));}
+  label('UGARIT, SIRIA',96,4,'#ffb347');
+  if(st>10.5)alpha((st-10.5)/1,()=>{label('HIMNO HURRITA N.6',96,94);alpha(.25+.1*Math.sin(st*5),()=>R(62,16,68,74,'#ffe27a'));});
+  else label('HACE 3.400 AÑOS',96,94,'#d8c8a0');
+}
+const SONG=[[294,1],[330,1],[349,1],[392,2],[349,1],[330,1],[294,2],[262,1],[294,1],[349,1],[330,1],[294,3]];
+function sSong(st){
+  meso(st,['#2a2a60','#4a3a70','#8a5070','#c07060','#e09860']);shade(.3,'#1a0a20');
+  R(0,70,W,38,'#6a4a30');R(0,70,W,2,'#8a6a40');for(let x=0;x<W;x+=24){R(x,40,6,30,'#8a6a40');R(x,38,8,3,'#a8804a');}
+  torch(10,58,st);torch(182,58,st);
+  const beat=.42,bt=Math.floor(st/beat);let acc=0,ni=-1;const pos=bt-2;
+  for(let i=0;i<SONG.length;i++){if(pos>=acc&&pos<acc+SONG[i][1]){ni=i;break;}acc+=SONG[i][1];}
+  const singing=ni>=0&&st<12.5;
+  person(110,100,2,true,{pal:SUM,wear:'tunic',hands:[[12,-16],[11,-11]],mouth:singing});
+  person(60,100,2,false,{pal:SUM2,wear:'tunic',hair:'none',hands:[[15,-15],[12,-10]]});
+  const [lx,ly]=hw(60,100,2,false,14,-10);R(lx-2,ly,10,6,'#5a3a20');line(lx-1,ly,lx-3,ly-14,'#7a5030');line(lx+7,ly,lx+9,ly-14,'#7a5030');line(lx-4,ly-14,lx+10,ly-14,'#7a5030');for(let k=0;k<4;k++)line(lx+k*2,ly-13,lx+k*2,ly,'#d8c8a0');
+  if(singing&&pos===acc){step('s',bt,()=>{sing(SONG[ni][0],SONG[ni][1]*beat*.95,['a','e','a','o','a','i','a','o','e','a','o','a'][ni],{peak:.24});pluck(SONG[ni][0]/2,{dur:1,hl:.4,lp:2500,peak:.35});});}
+  const [mx,my]=hw(110,100,2,true,10,-15);notesFrom(mx,my,st,.84,2.4,-1,1,12);
+  if(st>1.5)alpha(st-1.5,()=>label('ASI PUDO SONAR',96,6));
+}
+function sEnd(st){
+  meso(st,NIGHT,true);torch(112,54,st);torch(148,54,st);
+  if(st>2.5){const nb=Math.floor((st-2.5)/.4);if(nb<6)step('e',nb,()=>pluck([294,349,392,440,392,294][nb],{dur:1.3,hl:.4,lp:3000,peak:.4}));}
+}
+
+iniciar({num:4,prev:'capitulo3.html',next:'capitulo5.html',escenas:[
+  {dur:8,draw:sTitle,name:'Inicio',title:['CAPÍTULO 4','LA PRIMERA<br>CANCIÓN ESCRITA'],
+   text:'Hace unos 5.000 años, entre los ríos Tigris y Éufrates, en MESOPOTAMIA, nacieron las primeras ciudades... y la escritura.'},
+  {dur:14,draw:sLyre,name:'La lira de Ur',
+   text:'En las tumbas reales de UR se hallaron liras de hace 4.500 años, adornadas con cabezas de toro de oro y lapislázuli. En templos y palacios ya había MÚSICOS PROFESIONALES.'},
+  {dur:14,draw:sEgypt,name:'Egipto',
+   text:'En EGIPTO sonaban arpas, flautas, SISTROS (sonajeros de metal) y trompetas. En la tumba de Tutankamón aparecieron dos trompetas de hace 3.300 años... ¡y en 1939 se volvieron a tocar!'},
+  {dur:15,draw:sTablet,name:'La tablilla',
+   text:'En Ugarit (Siria) se halló una tablilla de arcilla de hace unos 3.400 años con un himno a la diosa Nikkal: el HIMNO HURRITA N.º 6, la canción escrita casi completa más antigua que se conoce.'},
+  {dur:14,draw:sSong,name:'Así pudo sonar',
+   text:'Nadie sabe con certeza cómo sonaba: los expertos proponen versiones distintas. Pero por primera vez, una melodía podía sobrevivir a quien la creó.'},
+  {dur:9,draw:sEnd,name:'Continuará',title:['PRÓXIMO: CAPÍTULO 5','LOS NÚMEROS<br>DEL SONIDO'],
+   text:'Mientras tanto, en Grecia, un filósofo se preguntaba por qué algunas notas suenan tan bien juntas... Continuará.'}
+]});
+</script>
+</body>
+</html>

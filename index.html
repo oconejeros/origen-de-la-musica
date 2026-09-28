@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>El Origen de la Música</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0a14;--fg:#f3e9d2;--accent:#ffb347;--panel:#16142a;--line:#2a2640;--dim:#9a93b8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:'Press Start 2P',monospace;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:24px 16px}
+h1{font-size:clamp(14px,3vw,26px);color:var(--accent);margin:8px 0 10px;text-align:center;line-height:1.6}
+p.sub{font-size:clamp(8px,1.3vw,11px);color:var(--dim);margin:0 0 24px;text-align:center;line-height:1.8}
+ol{list-style:none;margin:0;padding:0;width:100%;max-width:760px;display:grid;gap:10px}
+a{display:flex;gap:14px;align-items:center;color:var(--fg);text-decoration:none;background:var(--panel);border:4px solid var(--line);padding:14px 16px}
+a:hover,a:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
+.n{color:var(--accent);font-size:clamp(12px,2vw,18px);min-width:2.2em;text-align:right}
+.t{font-size:clamp(9px,1.6vw,13px);line-height:1.6}
+.e{display:block;color:var(--dim);font-size:clamp(7px,1.1vw,9px);margin-top:6px}
+</style>
+</head>
+<body>
+<h1>EL ORIGEN DE LA MÚSICA</h1>
+<p class="sub">Una historia animada en 11 capítulos</p>
+<ol id="list"></ol>
+<script>
+const CAPS=[
+ ['El cuerpo, primer instrumento','Prehistoria · voz, palmas y golpes'],
+ ['Las flautas de hueso','Hace 40.000 años · Edad de Hielo'],
+ ['Tambores y cuerdas','Neolítico · aldeas, arco musical y arpa'],
+ ['La primera canción escrita','Mesopotamia y Egipto'],
+ ['Los números del sonido','Grecia · Pitágoras'],
+ ['Monjes y pentagramas','Edad Media'],
+ ['Imprenta, ópera y violines','Renacimiento y Barroco'],
+ ['La orquesta y el piano','Clasicismo y Romanticismo'],
+ ['Atrapar el sonido','Fonógrafo, gramófono y radio'],
+ ['La música eléctrica','Theremin, rock y sintetizadores'],
+ ['La era digital','CD, MIDI, internet... y la voz']
+];
+document.getElementById('list').innerHTML=CAPS.map(([t,e],i)=>`<li><a href="capitulo${i+1}.html"><span class="n">${i+1}</span><span class="t">${t}<span class="e">${e}</span></span></a></li>`).join('');
+</script>
+</body>
+</html>

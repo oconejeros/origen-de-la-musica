@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Origen de la Música · Cap. 5</title>
+</head>
+<body>
+<script src="motor.js"></script>
+<script>
+/* ===================== CAPÍTULO 5 · LOS NÚMEROS DEL SONIDO ===================== */
+const GRK={skin:'#d0a070',shade:'#a07040',hair:'#3a2a1a',cloth:'#f0ece0',clothL:'#3a6ab0'};
+const GRK2={skin:'#c09060',shade:'#906030',hair:'#1a1210',cloth:'#e8d8b0',clothL:'#b04030'};
+const PYT={skin:'#d0a070',shade:'#a07040',hair:'#b8b8b8',beard:'#d8d8d8',cloth:'#f0ece0',clothL:'#8a6a3a'};
+const MASK={skin:'#f0ece0',shade:'#c8c0b0',hair:'#3a2a1a',eye:'#101010',mouth:'#101010',cloth:'#c8a060',clothL:'#8a3a2a'};
+
+srand(55);
+const DAY=['#3a70c0','#5088cc','#70a0d8','#90b8e0','#b0d0e8'],EVE=['#2a2a68','#5a3a78','#a8506a','#e07a5a','#f0a860'];
+const HILLG=mkRidge(62,[[6,.02,2],[3,.07,1]]);
+function temple(x,y){
+  R(x-28,y+3,56,2,'#c8c4b8');R(x-26,y,52,3,'#e8e4d8');
+  for(let k=0;k<6;k++){R(x-24+k*9.4,y-18,4,18,'#f4f0e4');R(x-21+k*9.4,y-18,1,18,'#c8c4b8');}
+  R(x-27,y-22,54,4,'#e8e4d8');R(x-27,y-19,54,1,'#c8c4b8');
+  for(let i=0;i<9;i++)R(x-27+i*3,y-23-i,54-i*6,1,i%2?'#e0dcd0':'#ece8dc');
+}
+function olive(x,y){R(x,y-6,2,6,'#5a4a3a');oval(x+1,y-9,6,4,'#5a6a3a');oval(x-2,y-8,3,2,'#6a7a4a');}
+function greece(t,cols=DAY,sunPos=[160,16]){
+  sky(cols);sun(sunPos[0],sunPos[1],6,'#fff4c0','#fff0a0');
+  R(0,68,W,40,'#2a6aa8');for(let k=0;k<10;k++)R((k*37+t*5)%W,70+(k*3)%14,6,1,'#6aa8d8');
+  ridge(HILLG,'#8a9a5a','#9aaa6a');temple(62,58);olive(120,76);olive(140,80);olive(20,78);
+  R(0,92,W,16,'#b8a070');R(0,92,W,1,'#c8b080');
+}
+function meander(y,c){R(0,y,W,1,c);for(let x=0;x<W;x+=8){R(x,y+1,1,4,c);R(x,y+4,5,1,c);R(x+4,y+2,1,3,c);R(x+2,y+2,3,1,c);}R(0,y+6,W,1,c);}
+/* ---- escenas ---- */
+function sTitle(st){
+  greece(st);
+  person(100,100,2,false,{pal:GRK,wear:'robe',hands:[[9,-7],[7,-7]]});
+  person(128,100,2,true,{pal:GRK2,wear:'tunic',hair:'short',hat:'wreath',hands:[[13,-15],[7,-7]],mouth:(st%2)<.8});
+  const [kx,ky]=hw(128,100,2,true,13,-15);notesFrom(kx,ky-4,st,.9,2.4,-1,2);
+}
+/* monocordio */
+const MX0=62,MX1=172,MLEN=110;
+const MPH=[[0,1,'CUERDA ENTERA'],[3.5,1/2,'1/2 = OCTAVA (2:1)'],[7.5,2/3,'2/3 = QUINTA (3:2)'],[11.5,3/4,'3/4 = CUARTA (4:3)']];
+const MEV=[[1.2,'ref'],[2.4,'seg'],[4.7,'seg'],[5.6,'ref'],[6.5,'both'],[8.7,'seg'],[9.6,'ref'],[10.5,'both'],[12.7,'seg'],[13.6,'ref'],[14.5,'both']];
+function sMono(st){
+  R(0,0,W,H,'#2a2030');alpha(.3,()=>oval(110,60,100,40,'#6a4a3a'));meander(96,'#c8a060');
+  let ph=MPH[0];for(const p of MPH)if(st>=p[0])ph=p;
+  const prev=MPH[Math.max(0,MPH.indexOf(ph)-1)][1],k=clamp((st-ph[0])/.8),ratio=prev+(ph[1]-prev)*k*k*(3-2*k);
+  const bx=MX0+MLEN*ratio;
+  person(10,96,2,false,{pal:PYT,wear:'robe',beard:true,hands:[[22,-14],[10,-8]],blink:(st%3.4)<.1});
+  R(56,66,124,10,'#8a5a2e');R(56,66,124,1,'#a8703a');R(56,75,124,1,'#5a3a1a');oval(118,71,4,2,'#3a2010');
+  for(const x of [MX0,MX1]){R(x-1,58,3,8,'#e8dcc0');}
+  let aRef=99,aSeg=99;for(const [t,w] of MEV){if(st>=t){if(w!=='seg')aRef=st-t;if(w!=='ref')aSeg=st-t;}}
+  const vib=(x0,x1,y,a,c)=>{const amp=a<1.4?1.6*Math.exp(-a*2.5):0;for(let x=x0;x<=x1;x++){const u=(x-x0)/(x1-x0);P(x,y+amp*Math.sin(Math.PI*u)*Math.sin(st*90),a<.3?'#fff3a0':c);}};
+  vib(MX0,MX1,59,aRef,'#b8b0a0');vib(MX0,bx,63,aSeg,'#e8dcc0');if(bx<MX1-1)line(bx,63,MX1,63,'#8a8070');
+  if(bx<MX1-1){for(let i=0;i<5;i++)R(bx-i/2,61+i,i+1,1,'#e8b830');}
+  MEV.forEach(([t,w],i)=>{if(st>=t)step('m'+i,1,()=>{const f=196/ph[1];if(w!=='seg')pluck(196,{dur:1.8,hl:.6,lp:3000,peak:.4});if(w!=='ref')pluck(f,{dur:1.8,hl:.6,lp:3000,peak:.4});});});
+  if(st>.8)label(ph[2],110,12,'#ffe27a');
+  txt('REFERENCIA',MX0,50,'#8a8070');
+  if(ph[1]<1){const x=(MX0+bx)/2;line(MX0,80,bx,80,'#ffb347');txt(['','','1/2','2/3','3/4'][MPH.indexOf(ph)+1],x,83,'#ffb347',1);}
+}
+/* lira y aulós */
+const KMEL=[330,294,262,247,220,0,247,262,294,330,0,330],AMEL=[440,494,523,494,440,0,392,440,494,440,0,0];
+function sInstr(st){
+  greece(st);
+  const b=Math.floor(st/.45),kOn=st>.8&&st<6.4,aOn=st>6.6&&st<12.6;
+  // citarista
+  const kf=KMEL[b%12];
+  person(44,100,2,false,{pal:GRK,wear:'robe',hat:'wreath',hands:[[16,kOn&&kf&&(st%.45)<.2?-16:-13],[12,-9]]});
+  const [kx,ky]=hw(44,100,2,false,14,-8);
+  R(kx-5,ky,12,8,'#c89040');R(kx-5,ky,12,1,'#e0b060');line(kx-5,ky,kx-7,ky-16,'#c89040');line(kx+6,ky,kx+8,ky-16,'#c89040');line(kx-8,ky-15,kx+9,ky-15,'#e0b060');
+  for(let s=0;s<5;s++)line(kx-3+s*2,ky-14,kx-3+s*2,ky+1,'#f0e8d0');
+  if(kOn&&kf)step('k',b,()=>pluck(kf,{dur:1.3,hl:.4,lp:3200,peak:.45}));
+  if(kOn)notesFrom(kx,ky-18,st,.9,2.2,1,.8,6);
+  // aulós
+  const af=AMEL[b%12];
+  person(136,100,2,true,{pal:GRK2,wear:'tunic',hands:[[17,-13],[14,-11]]});
+  const [ax,ay]=hw(136,100,2,true,9,-15);line(ax,ay,ax-18,ay+6,'#d8b878');line(ax,ay+1,ax-16,ay+11,'#d8b878');
+  if(aOn&&af)step('a',b,()=>{SND.reed(af,.42,{peak:.07});SND.reed(220,.45,{peak:.035,lp:1200});});
+  if(aOn)notesFrom(ax-18,ay+4,st,.9,2.2,-1,6.6,12.4);
+  label('LIRA: APOLO',kx,8,'#9fd3ff');label('AULOS: DIONISO',ax-8,18,'#ffa0c8');
+}
+/* teatro */
+const CHORDS=[[220,262,330],[196,247,294],[175,220,262],[165,208,247]];
+function sTheater(st){
+  sky(DAY);R(0,50,W,16,'#2a6aa8');R(0,66,W,42,'#a89870');
+  R(20,48,152,22,'#d8ccb0');R(20,48,152,2,'#e8dcc0');for(const dx of [50,92,134])R(dx,56,10,14,'#4a3a2a');for(let k=0;k<16;k++)R(24+k*9.4,50,2,6,'#c8bca0');
+  oval(96,84,70,16,'#c8b890');oval(96,84,58,12,'#e0d4b0');ring(96,84,4,'#c8b890');
+  const c=Math.floor(st/1.6),on=st>1&&st<12.6;
+  for(let k=0;k<5;k++){const a=st*.7+k*Math.PI*2/5,x=96+Math.cos(a)*44,y=86+Math.sin(a)*8;
+    person(x-8,y,1.3,Math.sin(a)>0?Math.cos(a)>0:Math.cos(a)<0,{pal:MASK,wear:'robe',hands:[[10,-19],[4,-14]],mouth:on&&(st%1.6)<1.3});}
+  for(let r=0;r<3;r++){R(0,98+r*4,W,4,r%2?'#a89878':'#b8a888');for(let x=4+r*6;x<W;x+=14)sil(x,99+r*4,'#3a2a2a');}
+  if(on)step('c',c,()=>CHORDS[c%4].forEach((f,i)=>sing(f,1.5,['a','o','a'][i],{peak:.16})));
+  label('ORQUESTA = LUGAR DEL CORO',96,6);
+}
+/* Seikilos */
+const SEIK=[[440,1],[659,1],[659,1],[554,1],[587,.5],[659,.5],[659,2],[587,1],[554,1],[587,1],[659,1],[587,1],[554,1],[494,2],[440,3]];
+srand(77);const GLY=[...Array(9*12)].map(()=>rnd()<.8);
+function sSeikilos(st){
+  greece(st,EVE,[40,56]);shade(.15,'#301020');
+  R(122,30,6,62,'#1a2a1a');oval(125,40,5,14,'#1f3a22');oval(125,60,6,16,'#1f3a22');
+  R(70,24,52,70,'#c8c8c0');R(70,24,52,1,'#e8e8e0');R(121,24,1,70,'#9a9a92');for(let i=0;i<6;i++)R(68+i*2,24-i,56-i*4,1,'#d0d0c8');
+  let beat=.36,bt=Math.floor((st-1)/beat),acc=0,ni=-1;for(let i=0;i<SEIK.length;i++){if(bt>=acc&&bt<acc+SEIK[i][1]*2){ni=i;break;}acc+=SEIK[i][1]*2;}
+  const lit=ni<0?(st>1?9:0):Math.floor(ni/SEIK.length*9)+1;
+  for(let r=0;r<9;r++)for(let k=0;k<12;k++)if(GLY[r*12+k]){const on=r<lit;P(74+k*4,32+r*6,on?'#a07030':'#7a7a74');P(75+k*4,33+r*6,on?'#a07030':'#7a7a74');if(k%3===0)P(75+k*4,30+r*6,on?'#d0a040':'#8a8a84');}
+  if(ni>=0&&bt===acc&&st<13)step('s',bt,()=>{sing(SEIK[ni][0]/2,SEIK[ni][1]*beat*2*.95,['o','e','i','a','o','u','a','e','i','o','u','a','i','o','a'][ni],{peak:.2});pluck(SEIK[ni][0],{dur:1,hl:.35,lp:3000,peak:.3});});
+  notesFrom(96,24,st,.8,2.2,1,1,12.5);
+  label('EPITAFIO DE SEIKILOS',96,98);
+}
+function sEnd(st){
+  greece(st,EVE,[40,56+st*2]);shade(clamp(st/9)*.3,'#100820');
+  const sx=((st*7)%240)-30;R(sx,64,16,3,'#3a2a1a');R(sx+2,67,12,1,'#2a1a10');line(sx+8,64,sx+8,50,'#3a2a1a');R(sx+3,52,10,10,'#e8e0cc');
+  if(st>2.5){const nb=Math.floor((st-2.5)/.45);if(nb<5)step('e',nb,()=>pluck([196,392,294,262,196][nb],{dur:1.6,hl:.5,lp:3000,peak:.4}));}
+}
+
+iniciar({num:5,prev:'capitulo4.html',next:'capitulo6.html',escenas:[
+  {dur:8,draw:sTitle,name:'Inicio',title:['CAPÍTULO 5','LOS NÚMEROS<br>DEL SONIDO'],
+   text:'En la antigua GRECIA, la palabra "música" venía de las MUSAS, diosas de las artes. Se aprendía en la escuela, junto con las letras y la gimnasia.'},
+  {dur:16,draw:sMono,name:'Pitágoras',
+   text:'Cuenta la tradición que PITÁGORAS, hace unos 2.500 años, estudió una cuerda: a la MITAD suena la misma nota más aguda (octava); a 2/3, una QUINTA; a 3/4, una CUARTA. ¡La música era matemática!'},
+  {dur:14,draw:sInstr,name:'Lira y aulós',
+   text:'Tocaban la LIRA y la CÍTARA, de cuerdas, asociadas al dios Apolo; y el AULÓS, un tubo doble con lengüeta de sonido penetrante, ligado a Dioniso.'},
+  {dur:14,draw:sTheater,name:'El teatro',
+   text:'En el TEATRO, un CORO cantaba y bailaba. La ORQUESTA era el espacio circular donde se movía el coro. ¡De ahí viene la palabra!'},
+  {dur:14,draw:sSeikilos,name:'Seikilos',
+   text:'La canción completa más antigua que se conserva está grabada en una lápida: el EPITAFIO DE SEIKILOS (siglo I). Dice: "Mientras vivas, brilla... la vida dura poco". Aquí, una versión aproximada.'},
+  {dur:9,draw:sEnd,name:'Continuará',title:['PRÓXIMO: CAPÍTULO 6','MONJES Y<br>PENTAGRAMAS'],
+   text:'Siglos después, Roma cayó. En los monasterios de Europa, los monjes guardaron el canto... pero ¿cómo escribirlo? Continuará.'}
+]});
+</script>
+</body>
+</html>

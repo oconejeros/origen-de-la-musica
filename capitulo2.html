@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Origen de la Música · Cap. 2</title>
+</head>
+<body>
+<script src="motor.js"></script>
+<script>
+/* ===================== CAPÍTULO 2 · LAS FLAUTAS DE HUESO ===================== */
+const HUNT={skin:'#c68642',shade:'#8d5524',hair:'#2b1a10',cloth:'#7a5230',clothL:'#a8753f'};
+const HUNT2={skin:'#e0ac69',shade:'#a9743a',hair:'#4a2a14',cloth:'#5e4630',clothL:'#8a6a44'};
+const HUNT3={skin:'#b07040',shade:'#7a4a24',hair:'#1a100a',cloth:'#8a6a50',clothL:'#b09070'};
+
+/* ---- paisaje glacial ---- */
+srand(21);
+const MTN=mkRidge(46,[[8,.04,0],[5,.11,1],[2,.3,2]]),SNOW=mkRidge(80,[[3,.06,2],[2,.17,0]]);
+const FLAKES=[...Array(70)].map(()=>[rnd()*W,rnd()*H,.6+rnd()]);
+function mammoth(x,y,c,t){
+  oval(x,y-6,7,5,c);oval(x+6,y-9,4,4,c);oval(x-2,y-10,4,2,c);
+  const k=Math.sin(t*3)>0?1:0;R(x-5,y-3,2,4-k,c);R(x-1,y-3,2,3+k,c);R(x+2,y-3,2,4-k,c);R(x+5,y-3,2,3+k,c);
+  line(x+9,y-8,x+10,y-1,c);line(x+8,y-5,x+12,y-4,'#cfc8b0');P(x+12,y-5,'#cfc8b0');
+}
+function glacial(t,dawn=0){
+  sky(['#070818','#0c1128','#131a38','#1c2548','#28325a']);
+  if(dawn)alpha(dawn,()=>sky(['#2a2450','#4a3a6a','#8a5a70','#d08a6a','#f0b070']));
+  stars(t,48);if(!dawn)moon(34,14);else sun(70,78-dawn*30,6);
+  ridge(MTN,'#2a3150');for(let x=0;x<W;x++)if(MTN[x]<44)R(x,MTN[x],1,3,'#aab4d0');
+  ridge(SNOW,'#8a96b4','#dfe7f5');
+  for(let i=0;i<3;i++){const mx=((t*3+i*70)%260)-40;mammoth(mx,SNOW[Math.max(0,Math.min(W-1,mx|0))]+2,'#1c2238',t+i);}
+  // cueva a la derecha
+  oval(166,78,42,40,'#15131e');oval(150,64,20,14,'#1c1a28');R(120,92,W,16,'#15131e');
+  oval(162,86,14,11,'#050407');alpha(.35+.08*Math.sin(t*9),()=>oval(162,90,11,6,'#ff8a2a'));
+  R(0,94,W,14,'#b8c2da');R(0,94,W,1,'#e8eef8');
+  for(const [fx,fy,sp] of FLAKES){const y=(fy+t*10*sp)%H,x=(fx+Math.sin(t+fy)*3+W)%W;P(x,y,sp>1.2?'#ffffff':'#c8d0e8');}
+}
+/* ---- interior de cueva ---- */
+srand(5);
+const ROCKS=[...Array(80)].map(()=>[rnd()*W,rnd()*92,3+rnd()*12,2+rnd()*6,['#1c1520','#241b26','#17111b','#2a1f26'][rnd()*4|0]]);
+const STAL=[...Array(18)].map((_,i)=>[i*11+rnd()*6,4+rnd()*10]);
+function cave(){
+  R(0,0,W,H,'#130e16');
+  for(const [x,y,rx,ry,c] of ROCKS)oval(x,y,rx,ry,c);
+  for(const [x,h] of STAL)for(let k=0;k<h;k++)R(x+k*.25,k,Math.max(1,4-k*.35),1,'#1f1720');
+  R(0,90,W,18,'#2a1f1a');R(0,90,W,1,'#3d2c20');
+}
+
+/* ---- escenas ---- */
+function sTitle(st){
+  glacial(st);
+  person(146,94,1,false,{pal:HUNT,hands:[[9,-7],[7,-7]]});person(172,94,1,true,{pal:HUNT2,hands:[[9,-8],[7,-7]]});
+}
+const HOLES=[72,88,104,120,136];
+function sCarve(st){
+  R(0,0,W,H,'#1a1016');alpha(.25+.03*Math.sin(st*9),()=>oval(96,56,90,50,'#6a3a1a'));alpha(.2,()=>oval(96,52,60,30,'#a0602a'));
+  label('HUESO DE ALA DE BUITRE',96,14,'#ffb347');
+  // hueso
+  const by=52;
+  R(34,by-4,126,8,'#e8dcc0');R(34,by+2,126,2,'#c2b28e');R(34,by-4,126,1,'#fff6e0');
+  oval(34,by,6,7,'#e8dcc0');oval(160,by,6,7,'#ddd0b0');oval(161,by+2,4,4,'#c2b28e');
+  P(30,by-2,'#6a4a30');P(31,by-1,'#6a4a30');P(30,by+1,'#6a4a30');P(31,by,'#6a4a30');
+  for(let k=0;k<6;k++)P(50+k*18,by+1,'#d0c098');
+  // agujeros
+  let cur=-1;
+  HOLES.forEach((hx,i)=>{const s0=1.4+i*2,g=clamp((st-s0)/1.6);if(st>s0&&g<1)cur=i;if(g>0)oval(hx,by-1,2.6*g+.4,1.8*g+.4,'#3a2418');});
+  if(cur>=0){
+    const hx=HOLES[cur],j=Math.sin(st*40)*1;
+    // lasca de sílex y mano
+    const tx=hx+j,ty=by-3;
+    for(let k=0;k<9;k++)R(tx-k*.5,ty-k,1+k,1,k<2?'#d8d8e0':k%3?'#8a8a98':'#a8a8b8');
+    R(tx-6,ty-17,11,7,'#c68642');R(tx-6,ty-17,11,1,'#d89a58');R(tx-7,ty-14,2,4,'#b07038');
+    for(let k=0;k<5;k++){const a=(st*3+k*.21)%1;P(hx+(k-2)*3*a*2,by-3-a*8+a*a*14,'#fff6e0');}
+    step('scr',Math.floor(st*7),()=>noise('highpass',3200+Math.random()*2500,2,.12,.035));
+  }
+  line(34,70,160,70,'#8a7a60');line(34,68,34,72,'#8a7a60');line(160,68,160,72,'#8a7a60');
+  txt('22 CM',97,74,'#b8a888',1);
+  if(st>11.5)label('5 AGUJEROS',96,88,'#ffe27a');
+}
+const FMEL=[587,659,784,0,659,587,494,0,587,659,784,880,784,0,659,0,587,494,440,0,494,587,587,0];
+function sPlay(st){
+  cave();fire(66,91,1,st);
+  const x=92,y=91,b=Math.floor(st/.42),f=FMEL[b%FMEL.length];
+  const playingNote=st>1&&st<13&&f;
+  person(x,y,2,false,{pal:HUNT,hands:[[17,-13],[13,-13]],blink:(st%3.1)<.1});
+  const [ax,ay]=hw(x,y,2,false,9,-15),[bx,by]=hw(x,y,2,false,22,-12);
+  line(ax,ay,bx,by,'#e8dcc0');line(ax,ay+1,bx,by+1,'#c2b28e');
+  if(playingNote)step('fl',b,()=>SND.flute(f,.4));
+  notesFrom(bx,by,st,.84,2.6,1,1,12.5);
+  person(142,91,2,true,{pal:HUNT2,hands:[[9,-7],[7,-8]],blink:(st%2.7)<.1});
+  person(164,91,1.4,true,{pal:HUNT3,hands:[[10,-10],[7,-7]],mouth:(st%4)<1.2});
+  darkness(.72,[[66,80,70+Math.sin(st*9)*3],[100,70,40]]);
+}
+/* pinturas rupestres */
+function bison(x,y,c){oval(x,y,9,5,c);oval(x+8,y-3,5,5,c);oval(x+12,y,3,3,c);R(x-7,y+3,2,5,c);R(x-2,y+4,2,4,c);R(x+4,y+4,2,4,c);R(x+9,y+3,2,5,c);P(x+13,y-5,c);P(x+14,y-6,c);line(x-9,y-1,x-12,y+3,c);}
+function horse(x,y,c){oval(x,y,8,3,c);line(x+6,y-1,x+10,y-7,c);line(x+7,y-1,x+11,y-7,c);oval(x+12,y-7,3,1.5,c);R(x-6,y+2,1,5,c);R(x-3,y+3,1,4,c);R(x+4,y+3,1,4,c);R(x+7,y+2,1,5,c);line(x-8,y-1,x-11,y+4,c);for(let k=0;k<4;k++)P(x+6+k,y-4-k,'#1a1010');}
+function handStencil(x,y,wall){srand(x*7+y);for(let k=0;k<50;k++){const a=rnd()*6.28,r=4+rnd()*4;P(x+Math.cos(a)*r,y+Math.sin(a)*r*1.2,'#b04a2a');}oval(x,y+1,3,3,wall);for(let f=0;f<4;f++)R(x-3+f*2,y-5+(f===0||f===3?1:0),1,4,wall);line(x+3,y,x+5,y-2,wall);}
+function sEcho(st){
+  R(0,0,W,H,'#2e211e');
+  for(const [x,y,rx,ry] of ROCKS)oval(x,y,rx,ry*.8,'#352622');
+  for(let i=0;i<W;i+=12)oval(i+6,0,9,10,'#1d1413');
+  bison(40,44,'#a0442a');horse(96,38,'#5a2a18');bison(150,48,'#8a3a22');horse(170,30,'#a0442a');
+  handStencil(70,58,'#2e211e');handStencil(124,60,'#2e211e');
+  R(0,90,W,18,'#221815');R(0,90,W,1,'#3a2a20');
+  const x=10+st*9,y=91,phr=Math.floor(st/2.2),ph=(st/2.2)%1,singing=st>1.5&&st<12.5&&ph<.45;
+  person(x,y,2,false,{pal:HUNT2,hands:[[14,-21],[8,-7]],mouth:singing});
+  const [tx,ty]=hw(x,y,2,false,15,-21);torch(tx,ty,st);
+  if(singing)step('h',phr,()=>SND.hum([220,262,196,247,220,294][phr%6],1));
+  // ondas que viajan y rebotan
+  if(st>1.5&&st<13){const age=(st-1.5)%2.2,[mx,my]=hw(x,y,2,false,10,-15);
+    alpha(1-age/2.2,()=>{ring(mx,my,4+age*30,'#ffe27a');if(age>.9)ring(mx,my,4+(age-.9)*20,'#ffb347');});}
+  darkness(.9,[[tx,ty-4,52+Math.sin(st*11)*3]],'8,4,6');
+  if(st>6)alpha((st-6)/1.5,()=>label('ECO = PINTURAS?',96,96,'#ffe27a'));
+}
+function whirl(d){
+  if(!AC)return;const t=AC.currentTime,s=AC.createBufferSource(),f=AC.createBiquadFilter(),l=AC.createOscillator(),lg=AC.createGain();
+  s.buffer=NB;s.loop=true;f.type='bandpass';f.Q.value=6;f.frequency.value=170;
+  l.frequency.value=1.1;lg.gain.value=70;l.connect(lg).connect(f.frequency);s.connect(f);
+  const am=AC.createGain(),al=AC.createOscillator(),alg=AC.createGain();am.gain.value=.7;al.frequency.value=1.1;alg.gain.value=.3;al.connect(alg).connect(am.gain);f.connect(am);
+  const o=AC.createOscillator(),olp=AC.createBiquadFilter(),og=AC.createGain();o.type='sawtooth';o.frequency.value=95;lg.connect(o.frequency);olp.type='lowpass';olp.frequency.value=380;og.gain.value=.25;o.connect(olp).connect(og).connect(am);
+  out(am,1.3,t,d,.3,true,.4);s.start(t);l.start(t);al.start(t);o.start(t);s.stop(t+d+.1);l.stop(t+d+.1);al.stop(t+d+.1);o.stop(t+d+.1);
+}
+function sRoar(st){
+  sky(['#070818','#0c1128','#131a38','#1c2548','#28325a']);stars(st,48);moon(160,14);
+  ridge(MTN,'#2a3150');ridge(SNOW,'#8a96b4','#dfe7f5');R(0,94,W,14,'#b8c2da');R(0,94,W,1,'#e8eef8');
+  fire(140,94,.9,st);
+  const x=66,y=94;
+  const [hx,hy]=hw(x,y,2,false,9,-24);
+  const a=st*7,swing=st>1&&st<12.5;
+  person(x,y,2,false,{pal:HUNT3,hands:swing?[[9,-24],[5,-8]]:[[10,-8],[5,-8]]});
+  if(swing){
+    for(let k=4;k>=0;k--){const b=a-k*.18,px=hx+Math.cos(b)*22,py=hy-8+Math.sin(b)*6;
+      alpha(k?0.15:1,()=>{if(!k)line(hx,hy,px,py,'#d8c8a0');const dx=Math.cos(b+1.57)*2;R(px-2,py-1,5,3,'#6b4423');P(px+dx,py,'#8a5a2e');});}
+    for(let k=0;k<3;k++){const r=((st*1.2+k/3)%1);alpha(.5-r*.5,()=>ring(hx,hy-8,10+r*40,'#9fb0d8'));}
+    step('wh',Math.floor((st-1)/2),()=>whirl(2.4));
+  }
+  person(150,94,2,true,{pal:HUNT,hands:[[9,-7],[7,-7]],blink:(st%3)<.1});
+  person(170,94,1.4,true,{pal:HUNT2,hands:[[12,-18],[7,-7]]});
+  if(st>2)alpha(clamp((st-2)/1),()=>label('BRAMADERA',hx,12,'#ffe27a'));
+}
+function sEnd(st){
+  const d=clamp(st/6);glacial(st,d);
+  if(st>2.5){const nb=Math.floor((st-2.5)/.5);if(nb<6)step('e',nb,()=>SND.flute([587,659,784,659,587,494][nb],.5));}
+}
+
+iniciar({num:2,prev:'capitulo1.html',next:'capitulo3.html',escenas:[
+  {dur:8,draw:sTitle,name:'Inicio',title:['CAPÍTULO 2','LAS FLAUTAS<br>DE HUESO'],
+   text:'Hace unos 40.000 años, en plena Edad de Hielo, pequeños grupos humanos se refugiaban en cuevas de lo que hoy es Alemania...'},
+  {dur:14,draw:sCarve,name:'Tallar el hueso',
+   text:'En la cueva de Hohle Fels se halló una flauta hecha con un hueso del ala de un buitre. Alguien le abrió CINCO AGUJEROS con una piedra afilada.'},
+  {dur:14,draw:sPlay,name:'La primera melodía',amb:fireAmb,
+   text:'Soplando por un extremo y tapando agujeros con los dedos salían NOTAS DISTINTAS. Cerca se hallaron flautas de MARFIL DE MAMUT. Son de los instrumentos más antiguos que conocemos.'},
+  {dur:14,draw:sEcho,name:'Cuevas que resuenan',eco:[.55,.32,.5],
+   text:'Algunos investigadores creen que las pinturas de las cuevas abundan donde el ECO es más fuerte. Tal vez allí se cantaba, y la roca respondía.'},
+  {dur:13,draw:sRoar,name:'La bramadera',amb:fireAmb,
+   text:'Otro invento muy antiguo: la BRAMADERA, una tablilla atada a una cuerda. Al girarla ruge como el viento o un animal. Se ha usado en rituales en todo el mundo.'},
+  {dur:9,draw:sEnd,name:'Continuará',title:['PRÓXIMO: CAPÍTULO 3','TAMBORES<br>Y CUERDAS'],
+   text:'Miles de años después terminó la Edad de Hielo. Los humanos empezaron a cultivar la tierra y a vivir en aldeas... Continuará.'}
+]});
+</script>
+</body>
+</html>

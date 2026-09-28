@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Origen de la Música · Cap. 7</title>
+</head>
+<body>
+<script src="motor.js"></script>
+<script>
+/* ===================== CAPÍTULO 7 · IMPRENTA, ÓPERA Y VIOLINES ===================== */
+const REN={skin:'#e0b090',shade:'#b08060',hair:'#4a2a14',cloth:'#7a2a3a',clothL:'#e8c060',legs:'#2a2a3a'};
+const PRINTER={skin:'#d8a070',shade:'#a87040',hair:'#2a1a10',cloth:'#e8e0cc',clothL:'#6a4a2a',legs:'#4a3a2a'};
+const VOX=[['#e05050','#f07070'],['#e8b830','#f8d060'],['#3a8ad8','#6aaae8'],['#4aa84a','#7ac87a']];
+const ORFEO={skin:'#e8b890',shade:'#b88860',hair:'#6a3a1a',cloth:'#e8e0cc',clothL:'#e8b830',legs:'#e8b890'};
+const LUTH={skin:'#d8a070',shade:'#a87040',hair:'#8a8a8a',cloth:'#6a5a4a',clothL:'#c8b898',legs:'#3a2a1a'};
+const VIOL={skin:'#e8b890',shade:'#b88860',hair:'#3a2210',cloth:'#2a4a7a',clothL:'#e8e0cc',legs:'#1a2030'};
+const BACH={skin:'#e8b890',shade:'#b88860',hair:'#e8e8ec',cloth:'#3a2a3a',clothL:'#e8e0cc',legs:'#1a1a22'};
+
+srand(77);
+const EVE=['#2a3a78','#5a4a88','#b0607a','#e8906a','#f8c078'],NIGHT=['#070818','#0c0f28','#141838','#1c2044','#262a50'];
+const FAC=[];{let x=-4;while(x<W){const w=16+(rnd()*12|0);FAC.push([x,w,30+(rnd()*22|0),['#c86a4a','#e0a060','#d88a6a','#b85a4a','#e8c080','#c8905a'][rnd()*6|0]]);x+=w;}}
+function venice(t,cols=EVE,night=false){
+  sky(cols);if(night){stars(t,40);moon(170,14);}else sun(40,48,7);
+  oval(150,38,14,12,night?'#3a3848':'#c8b8a0');R(149,22,2,6,night?'#3a3848':'#c8b8a0');R(170,18,8,50,night?'#4a3a38':'#b85a4a');for(let i=0;i<5;i++)R(170+i,18-i,8-2*i,1,'#3a8a6a');
+  for(const [x,w,h,c] of FAC){const y=84-h;R(x,y,w,h,night?'#2a2430':c);R(x,y,w,2,night?'#3a3440':'#f0e0c0');
+    for(let wy=y+6;wy<80;wy+=10)for(let wx=x+3;wx<x+w-4;wx+=6){R(wx,wy,3,5,night?((wx+wy)%3?'#ffcf70':'#2a2020'):'#3a2a2a');P(wx+1,wy-1,night?'#2a2430':'#3a2a2a');}}
+  R(0,84,W,24,night?'#101a2a':'#2a5a7a');
+  for(const [x,w,h,c] of FAC)alpha(.25,()=>R(x,84,w,Math.min(24,h*.5),night?'#ffcf70':c));
+  for(let k=0;k<12;k++)R((k*23+t*6)%W,86+(k*7)%20,7,1,night?'#3a4a6a':'#8ac0e0');
+  const gx=((t*10)%260)-40;R(gx,96,34,3,'#101010');line(gx-3,93,gx,96,'#101010');line(gx+34,96,gx+38,92,'#101010');R(gx+36,90,2,3,'#c8c8c8');
+  person(gx+22,96,1.2,false,{pal:{skin:'#e0b090',cloth:'#e8e8e8',clothL:'#c03030',legs:'#101010'},wear:'shirt',hat:'cap',hatc:'#1a1a1a',hands:[[14,-10],[12,-6]]});
+  const [ox,oy]=hw(gx+22,96,1.2,false,14,-10);line(ox,oy,ox+8,oy+12,'#6b4423');
+}
+function sheet(x,y,c){R(x,y,18,13,'#f0e8d0');R(x,y+12,18,1,'#c8b898');for(let k=0;k<3;k++)R(x+2,y+3+k*3,14,1,'#8a7a6a');for(let k=0;k<4;k++)R(x+3+k*4,y+2+(k*5)%7,2,2,c||'#1a1a1a');}
+/* ---- escenas ---- */
+function sTitle(st){venice(st);}
+function sPress(st){
+  R(0,0,W,H,'#3a2a20');for(let x=0;x<W;x+=16)R(x,0,1,96,'#2e2018');R(0,96,W,12,'#2a1e16');
+  R(0,8,W,2,'#4a3428');for(let k=0;k<6;k++){line(10+k*30,10,16+k*30,24,'#8a7a6a');sheet(8+k*30,24,'#1a1a1a');}
+  const cyc=2.4,c=Math.floor((st-1)/cyc),ph=((st-1)%cyc)/cyc,on=st>1&&st<13.2;
+  const down=on?(ph<.25?ph/.25:ph<.4?1:ph<.65?1-(ph-.4)/.25:0):0,p=Math.round(down*9);
+  R(66,30,6,66,'#6a4428');R(122,30,6,66,'#6a4428');R(62,26,70,8,'#7a5030');R(62,26,70,1,'#9a6a3a');
+  R(94,34,6,10+p,'#8a8a90');for(let k=0;k<10+p;k+=2)R(94,34+k,6,1,'#5a5a60');
+  const la=down*1.2-.6;line(97,38,97+Math.cos(la)*22,38+Math.sin(la)*6,'#5a3a20');
+  R(78,44+p,38,6,'#7a5030');R(78,49+p,38,1,'#4a2e18');
+  R(62,64,70,6,'#5a3a20');R(62,64,70,1,'#7a5030');R(62,70,6,26,'#5a3a20');R(126,70,6,26,'#5a3a20');
+  if(ph<.7||!on)sheet(88,51+(p>6?4:0),'#1a1a1a');
+  const [hx,hy]=[97+Math.cos(la)*22,38+Math.sin(la)*6],[lx,ly]=loc(132,100,2,true,hx,hy);
+  person(132,100,2,true,{pal:PRINTER,wear:'tunic',hands:[[clamp(lx,-6,18),clamp(ly,-30,-8)],[10,-8]],blink:(st%3)<.1});
+  const n=on?c+(ph>.7?1:0):Math.max(0,Math.floor((13.2-1)/cyc)+1);
+  for(let k=0;k<Math.min(n,12);k++)sheet(160,86-k*2,'#1a1a1a');
+  if(on&&ph>.65&&ph<.9){const a=(ph-.65)/.25;sheet(88+a*72,52-Math.sin(a*Math.PI)*16+a*(34-Math.min(n,12)*2),'#1a1a1a');}
+  if(on&&ph>.2&&ph<.3)step('pr',c,()=>{SND.thud(0,.8);noise('lowpass',900,1,.25,.12);});
+  if(on&&ph>.66&&ph<.7)step('pa',c,()=>noise('bandpass',3000,1,.1,.15,0,{att:.05}));
+  label('COPIAS: '+Math.max(0,n*50),168,4,'#ffe27a');label('PETRUCCI, VENECIA 1501',66,100,'#ffb347');
+}
+const CHORDS=[[196,247,294,392],[147,220,294,440],[196,247,294,494],[131,262,330,523],[196,247,294,494],[147,220,294,440],[165,247,330,392],[147,220,294,370],[98,247,294,392]];
+function sPoly(st){
+  R(0,0,W,H,'#2a2230');for(let k=0;k<4;k++){const x=20+k*50;R(x,8,14,30,'#3a3048');oval(x+7,8,7,6,'#3a3048');R(x+2,10,10,26,'#5a6a9a');R(x+6,10,1,26,'#3a3048');}
+  R(0,94,W,14,'#3a2a24');for(let x=0;x<W;x+=12)R(x,94,1,14,'#2a1e18');
+  const beat=1.05,b=Math.floor((st-1)/beat),on=st>1&&b<CHORDS.length;
+  for(let v=0;v<4;v++){const y=46+v*10;R(8,y,176,1,'#4a4058');
+    for(let k=0;k<CHORDS.length;k++){const x=96+(k-(st-1)/beat)*22;if(x<8||x>184)continue;const f=CHORDS[k][3-v],yy=y-Math.log2(f/[392,294,247,165][v])*8;
+      R(x,yy-1,4,3,k===b?VOX[v][1]:VOX[v][0]);if(k===b)alpha(.5,()=>ring(x+2,yy,4,'#ffffff'));}}
+  R(95,40,2,42,'#ffffff40');
+  for(let v=0;v<4;v++){const x=12+v*30;person(x,100,1.3,false,{pal:{skin:'#e0b090',hair:['#6a3a1a','#2a1a10','#c89040','#4a2a14'][v],cloth:VOX[v][0],clothL:VOX[v][1],legs:'#2a2a3a'},wear:v<2?'dress':'tunic',hands:[[11,-11],[10,-10]],mouth:on});}
+  person(150,100,1.3,true,{pal:REN,wear:'tunic',hat:'cap',hands:[[14,-10],[18,-14]]});
+  const [lx,ly]=hw(150,100,1.3,true,13,-9);oval(lx,ly,5,3,'#a8703a');line(lx-4,ly-1,lx-16,ly-8,'#6a4428');
+  if(on)step('ch',b,()=>{CHORDS[b].forEach((f,i)=>sing(f,beat*.97,['u','o','o','a'][i],{peak:.1}));CHORDS[b].forEach((f,i)=>pluck(f,{dur:1,hl:.3,lp:2500,peak:.18,delay:i*.08}));});
+  txt('S',4,44,VOX[0][1]);txt('A',4,54,VOX[1][1]);txt('T',4,64,VOX[2][1]);txt('B',4,74,VOX[3][1]);
+  label('CUATRO VOCES INDEPENDIENTES',96,2);
+}
+const OMEL=[[392,2],[440,1],[392,1],[349,2],[330,2],[294,3],[0,1],[330,1],[349,1],[392,2],[440,2],[392,4]];
+function sOpera(st){
+  R(0,0,W,H,'#1a0e14');
+  sky(['#1a1a3a','#2a2248','#4a2a4a','#7a3a3a','#a84a2a']);R(0,0,W,6,'#1a0e14');
+  for(let k=0;k<6;k++){const x=30+k*26;for(let i=0;i<14;i++)R(x-i*.6,62-i,1+i*1.2,1,'#2a1a2a');}
+  R(0,66,W,20,'#5a3a22');R(0,66,W,1,'#7a5030');
+  for(let x=24;x<170;x+=12)candle(x,62,st+x);
+  for(let s of [0,1]){const cx=s?W-26:0;R(cx,0,26,86,'#8a1a22');for(let k=0;k<26;k+=4)R(cx+k,0,1,86,'#6a1018');}
+  R(0,0,W,8,'#8a1a22');for(let x=0;x<W;x+=10)oval(x+5,8,5,3,'#8a1a22');
+  R(0,86,W,22,'#140a10');for(let r=0;r<2;r++)for(let x=6+r*7;x<W;x+=14)sil(x,96+r*7,'#3a2230');
+  const beat=.42,b=Math.floor((st-1)/beat);let acc=0,ni=-1;for(let i=0;i<OMEL.length;i++){if(b>=acc&&b<acc+OMEL[i][1]){ni=i;break;}acc+=OMEL[i][1];}
+  const singing=ni>=0&&OMEL[ni][0]>0&&st<13;
+  person(84,66,2,false,{pal:ORFEO,wear:'tunic',hat:'wreath',hands:singing?[[18,-20],[2,-20]]:[[12,-11],[10,-9]],mouth:singing});
+  if(ni>=0&&b===acc&&OMEL[ni][0])step('o',b,()=>sing(OMEL[ni][0],OMEL[ni][1]*beat*.95,'a',{peak:.22,vibD:.02,vib:5.5}));
+  const cb=Math.floor((st-1)/(beat*4));if(st>1&&st<13)step('pad',cb,()=>[[147,220,294],[131,196,262],[147,220,294],[110,165,220],[147,220,294]][cb%5].forEach(f=>SND.bowed(f,beat*4*.98,{peak:.05,lp:1500})));
+  const [mx,my]=hw(84,66,2,false,10,-15);notesFrom(mx,my,st,1,2.4,1,1,12.5);
+  label("L'ORFEO - MONTEVERDI, 1607",96,10,'#ffe27a');
+}
+function violin(x,y,a,c='#a0522d'){ctx.save();ctx.translate(x,y);ctx.rotate(a);oval(0,0,4,3,c);oval(0,5,5,4,c);R(-1,1,3,1,'#5a2a10');P(-2,4,'#2a1008');P(2,4,'#2a1008');R(-1,-10,2,9,'#1a1010');oval(0,-11,1.5,1.5,c);ctx.restore();}
+const VMEL=[[587,1],[659,1],[698,2],[659,1],[587,1],[554,2],[587,1],[659,1],[587,1],[523,1],[466,2],[440,4]];
+function sViolin(st){
+  R(0,0,W,H,'#4a3424');for(let y=0;y<90;y+=12)R(0,y,W,1,'#3a2818');R(0,90,W,18,'#3a2a1c');R(0,90,W,1,'#5a4028');
+  for(let k=0;k<5;k++){line(12+k*18,6,12+k*18,12,'#2a1a10');violin(12+k*18,22,0,['#a0522d','#b8662a','#8a4020','#c07a3a','#9a4a24'][k]);}
+  R(10,72,74,4,'#6a4428');R(14,76,3,14,'#5a3a20');R(76,76,3,14,'#5a3a20');
+  person(44,90,2,false,{pal:LUTH,wear:'tunic',hands:[[14,-10+Math.round(Math.sin(st*6)),],[18,-9]],blink:(st%3)<.1});
+  ctx.save();ctx.translate(76,68);ctx.rotate(1.57);oval(0,0,3,6,'#e0b070');ctx.restore();
+  const [cx,cy]=hw(44,90,2,false,15,-10);line(cx,cy,cx+4+Math.sin(st*6)*3,cy+6,'#8a8a90');
+  if(Math.sin(st*6)>.95)step('sh',Math.floor(st*6/6.28),()=>noise('bandpass',3500,2,.08,.2,0,{att:.1}));
+  // violinista
+  const beat=.34,b=Math.floor((st-2.5)/beat);let acc=0,ni=-1;for(let i=0;i<VMEL.length;i++){if(b>=acc&&b<acc+VMEL[i][1]){ni=i;break;}acc+=VMEL[i][1];}
+  const on=st>2.5&&ni>=0,bow=on?Math.sin((st-2.5)/beat*Math.PI):0;
+  person(140,96,2,false,{pal:VIOL,wear:'coat',hands:[[22,-17],[12+bow*6,-13+bow]]});
+  violin(160,72,-1.9,'#b8662a');
+  const [bx,by]=hw(140,96,2,false,12+bow*6,-13+bow);line(bx-8,by+6,bx+14,by-6,'#d8c8a0');
+  if(on&&b===acc)step('v',b,()=>SND.bowed(VMEL[ni][0],VMEL[ni][1]*beat*.97,{peak:.13}));
+  notesFrom(170,58,st,.8,2.2,1,2.6,13);
+  label('CREMONA: AMATI Y STRADIVARI',96,98,'#ffe27a');
+}
+const SUBJ=[[294,1],[440,1],[349,1],[294,1],[277,1],[294,1],[330,1],[349,2],[392,1],[349,1],[330,1],[294,2],[0,2]];
+function seqNote(seq,b){let acc=0;for(let i=0;i<seq.length;i++){if(b>=acc&&b<acc+seq[i][1])return [seq[i][0],seq[i][1],b===acc];acc+=seq[i][1];}return null;}
+const PIPES=[...Array(25)].map((_,i)=>{const d=Math.abs(i-12);return [22+i*6,14+d*2.6+(i%2)*3];});
+function sOrgan(st){
+  R(0,0,W,H,'#1e1a24');R(12,6,168,72,'#5a3a22');R(12,6,168,2,'#c8a040');R(12,76,168,2,'#c8a040');
+  const beat=.26,b=Math.floor((st-1)/beat),on=st>1&&st<13.3,v1=on?seqNote(SUBJ,b):null,v2=on&&b>=16?seqNote(SUBJ.map(([f,d])=>[f?f*1.5/2:0,d]),b-16):null,v3=on&&b>=32?seqNote(SUBJ.map(([f,d])=>[f?f/2:0,d]),b-32):null;
+  const active=[v1,v2,v3].filter(v=>v&&v[0]).map(v=>v[0]);
+  PIPES.forEach(([x,top],i)=>{const f=110*Math.pow(2,(24-i)/12),lit=active.some(a=>Math.abs(Math.log2(a/f))<.06||Math.abs(Math.log2(a/f/2))<.06);
+    R(x,top,4,70-top,lit?'#ffffff':'#b8b8c4');R(x+3,top,1,70-top,'#8a8a98');R(x,62,4,3,'#2a2a30');if(lit)alpha(.4,()=>oval(x+2,top,4,4,'#ffe27a'));});
+  R(60,78,72,12,'#4a2e18');R(62,80,68,3,'#f0ece0');for(let k=0;k<17;k++)R(63+k*4,80,1,3,'#1a1a1a');R(62,85,68,3,'#f0ece0');
+  person(88,104,2,true,{pal:BACH,wear:'coat',hair:'wig',hands:[[16,-12+(b%2)],[10,-12+((b+1)%2)]]});
+  R(78,96,40,4,'#3a2414');
+  [[v1,'a'],[v2,'b'],[v3,'c']].forEach(([v,k])=>{if(v&&v[0]&&v[2])step(k,b,()=>SND.organ(v[0],v[1]*beat*.95,{peak:k==='c'?1.3:1}));});
+  if(on&&b===0)step('ped',0,()=>SND.organ(73,4,{peak:1.2}));
+  label('J. S. BACH (1685-1750)',96,98,'#ffe27a');
+}
+function sEnd(st){
+  venice(st,NIGHT,true);
+  if(st>2.5){const nb=Math.floor((st-2.5)/.4);if(nb<6)step('e',nb,()=>SND.bowed([392,440,494,523,587,392][nb],.45,{peak:.12}));}
+}
+
+iniciar({num:7,prev:'capitulo6.html',next:'capitulo8.html',escenas:[
+  {dur:8,draw:sTitle,name:'Inicio',title:['CAPÍTULO 7','IMPRENTA, ÓPERA<br>Y VIOLINES'],
+   text:'Hacia el año 1500, Europa vive el RENACIMIENTO: renacen el arte y la ciencia, y la música florece en cortes, iglesias y ciudades.'},
+  {dur:14,draw:sPress,name:'La imprenta',
+   text:'En Venecia, en 1501, OTTAVIANO PETRUCCI imprimió el primer libro de música polifónica con tipos móviles. Ahora una obra podía copiarse cientos de veces y viajar por toda Europa.'},
+  {dur:13,draw:sPoly,name:'Polifonía',eco:[.3,.15,.4],
+   text:'Compositores como JOSQUIN y PALESTRINA tejían cuatro o más voces, cada una con su propia melodía. Y el LAÚD y la VIHUELA acompañaban canciones y danzas.'},
+  {dur:14,draw:sOpera,name:'La ópera',
+   text:'Hacia 1600 nace en Italia la ÓPERA: teatro todo cantado, con orquesta. L’ORFEO de MONTEVERDI (1607) es una de las primeras grandes óperas.'},
+  {dur:14,draw:sViolin,name:'Violines',
+   text:'En Cremona, familias de LUTIERS como AMATI y STRADIVARI construyeron violines tan buenos que todavía hoy se tocan... ¡y valen fortunas!'},
+  {dur:14,draw:sOrgan,name:'Bach',eco:[.45,.16,.55],
+   text:'En el BARROCO, J. S. BACH llevó el CONTRAPUNTO a su cumbre: en una FUGA, una melodía entra y vuelve a entrar en otras voces, entrelazándose.'},
+  {dur:9,draw:sEnd,name:'Continuará',title:['PRÓXIMO: CAPÍTULO 8','LA ORQUESTA<br>Y EL PIANO'],
+   text:'Muy pronto llegaría un teclado capaz de sonar suave... y fuerte. Continuará.'}
+]});
+</script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Origen de la Música · Cap. 11</title>
+</head>
+<body>
+<script src="motor.js"></script>
+<script>
+/* ===================== CAPÍTULO 11 · LA ERA DIGITAL ===================== */
+const NERD={skin:'#e8c0a0',shade:'#b89070',hair:'#6a3a1a',cloth:'#e8c040',clothL:'#c83030',legs:'#3a4a8a'};
+const DJ={skin:'#8a5a3a',shade:'#5a3a1a',hair:'#1a1210',cloth:'#e83060',clothL:'#f0f0f0',legs:'#2a2a3a',hatc:'#1a1a1a'};
+const B80={skin:'#e0b090',shade:'#b08060',hair:'#c89040',cloth:'#30c0c0',clothL:'#e83090',legs:'#2a2a6a'};
+const TEEN={skin:'#c68642',shade:'#8d5524',hair:'#1a1010',cloth:'#6a4ac8',clothL:'#f0f0f0',legs:'#2a2a3a'};
+const CAVE={skin:'#c68642',shade:'#8d5524',hair:'#2b1a10',cloth:'#7a5230',clothL:'#a8753f'};
+const CAVE2={skin:'#e0ac69',shade:'#a9743a',hair:'#4a2a14',cloth:'#5e4630',clothL:'#8a6a44'};
+
+srand(1111);
+const NIGHT=['#070818','#0c0f28','#141838','#1c2044','#262a50'];
+function bedroom(t,wall='#3a3050'){
+  R(0,0,W,H,wall);R(0,86,W,22,'#4a3a3a');R(0,86,W,1,'#5a4a4a');
+  R(140,10,40,34,'#0a0c20');R(140,10,40,2,'#8a8aa0');R(159,10,2,34,'#8a8aa0');stars(t,0);
+  for(let k=0;k<6;k++){const x=142+k*6,h=8+(k*5)%12;R(x,44-h,5,h,'#16162a');if(k%2)P(x+2,44-h+3,'#ffcf70');}
+}
+function crt(x,y,t,screen){R(x,y,30,24,'#d8d0b8');R(x+3,y+3,24,17,'#0a1a10');R(x+8,y+24,14,3,'#c8c0a8');R(x-4,y+27,38,5,'#d8d0b8');for(let k=0;k<8;k++)R(x-2+k*4,y+28,3,1,'#a8a090');if(screen)screen(x+3,y+3);}
+/* ---- escenas ---- */
+function sTitle(st){
+  bedroom(st);
+  R(10,14,24,30,'#e83090');txt('SYNTH',22,24,'#ffe27a',1);R(12,34,20,6,'#30c0c0');
+  R(40,62,110,4,'#8a6a4a');R(44,66,4,20,'#6a4a2a');R(142,66,4,20,'#6a4a2a');
+  crt(70,32,st,(x,y)=>{const n=Math.floor(st*6);for(let r=0;r<4;r++)R(x+2,y+2+r*4,Math.min(20,(n-r*5)*2),1,'#6af08a');if((st*2|0)%2)R(x+2,y+14,2,2,'#6af08a');});
+  person(116,94,2,true,{pal:NERD,wear:'shirt',hands:[[16,-12+((st*8|0)%2)],[14,-12+((st*8+1|0)%2)]],glasses:true});
+  if(st>1)step('k',Math.floor(st*8),()=>SND.tap(0,.08));
+}
+function sDigital(st){
+  R(0,0,W,H,'#101420');R(16,56,150,1,'#4a4a62');R(16,14,1,84,'#4a4a62');
+  const wave=x=>56-26*Math.sin(x*.07)*(.8+.2*Math.sin(x*.023));
+  for(let x=16;x<166;x++)P(x,wave(x),'#5ab0ff');
+  const ns=Math.floor(clamp((st-2.5)/4)*19);
+  for(let i=0;i<ns;i++){const x=20+i*8,y=wave(x);line(x,56,x,y,'#e8c040');R(x-1,y-1,3,3,'#ffe27a');if(i%2===0)txt(String(Math.round((56-y)*4)),x,y<56?y-8:y+4,'#e8c040',1);}
+  if(st>7.5){const a=clamp((st-7.5)/1.5);alpha(a,()=>{for(let i=0;i<18;i++){const x=20+i*8,y=Math.round(wave(x));R(x,y,8,1,'#6af08a');line(x+8,y,x+8,Math.round(wave(x+8)),'#6af08a');}});}
+  const a=st*5;oval(176,86,12,12,'#c8c8d0');oval(176,86,3,3,'#101420');for(let k=0;k<4;k++){const b=a+k*1.57;line(176+Math.cos(b)*4,86+Math.sin(b)*4,176+Math.cos(b)*11,86+Math.sin(b)*11,['#ff6a8a','#ffe27a','#6af08a','#6ab0ff'][k]);}
+  label(st<7.5?'MEDIR LA ONDA MUCHAS VECES':'44.100 VECES POR SEGUNDO',96,4,st<7.5?'#e8c040':'#6af08a');
+  label('CD: 1982',170,68,'#ffe27a');
+  if(st>1&&st<6.8)step('an',0,()=>tone({f:330,peak:.15,dur:5.6,att:.2,sus:true,rel:.3,vib:4,vibD:2}));
+  if(st>8.5&&st<13)step('dg',0,()=>tone({type:'triangle',f:330,peak:.13,dur:4.3,att:.2,sus:true,rel:.3,vib:4,vibD:2}));
+}
+/* MIDI */
+function sMidi(st){
+  R(0,0,W,H,'#1a1030');for(let x=0;x<W;x+=16)R(x,0,1,86,'#221840');R(0,86,W,22,'#2a2040');
+  const e=(st-1)/.19,n=Math.floor(e),k=((n%16)+16)%16,on=st>1&&st<13.2,frac=e-n;
+  // teclado
+  R(8,62,54,10,'#2a2a30');R(10,66,50,6,'#f0ece0');for(let j=0;j<12;j++)R(10+j*4,66,1,6,'#8a8a8a');R(10,63,20,2,'#e83060');
+  // caja de ritmos
+  R(122,62,46,24,'#3a3a44');for(let r=0;r<2;r++)for(let c=0;c<8;c++){const idx=r*8+c,lit=on&&idx===k;R(125+c*5,66+r*8,4,6,lit?'#ffe27a':['#e83030','#e8c040','#30a0e8'][c%3]);}
+  // computadora
+  crt(80,28,st,(x,y)=>{for(let j=0;j<16;j++)R(x+2+j*1.3,y+14-((j*7)%10),1,((j*7)%10)+1,j===k?'#ffe27a':'#6af08a');});
+  line(62,68,80,56,'#1a1a1a');line(110,56,122,70,'#1a1a1a');
+  if(on)for(let j=0;j<3;j++){const u=(frac+j/3)%1;R(62+u*18,68-u*12,2,2,'#ff5aa0');R(110+u*12,56+u*14,2,2,'#5af0ff');}
+  ring(62,68,2,'#c8c8d0');ring(122,70,2,'#c8c8d0');
+  person(22,90,1.4,false,{pal:B80,wear:'shirt',hands:[[14,-14+(on&&k%2?1:0)],[18,-14]]});
+  person(96,98,1.6,false,{pal:DJ,wear:'shirt',hat:'cap',hands:k%4<2?[[12,-22],[3,-16]]:[[5,-20],[13,-16]],lift:on&&k%4===0?2:0});
+  if(on)step('m',n,()=>{
+    if(k%4===0)SND.kick(0,.9);if(k===4||k===12)SND.snare(0,.35);if(k%2===1)SND.hat(0,false,.1);if(k===14)SND.hat(0,true,.1);
+    tone({type:'sawtooth',f:[55,55,0,55,65,0,55,0,49,49,0,49,58,0,65,0][k]||55,peak:[55,55,0,55,65,0,55,0,49,49,0,49,58,0,65,0][k]?.16:.0002,dur:.17,lp:600,lp1:200,q:6});
+    if(k===2||k===10)[220,277,330].forEach(f=>tone({type:'square',f,peak:.035,dur:.15,lp:2500}));});
+  label('MIDI: 1983',96,4,'#ffe27a');label('CAJA DE RITMOS',145,94,'#e8c040');
+}
+/* internet */
+srand(3);const LAND=[...Array(14)].map(()=>[rnd()*6.28,(rnd()-.5)*1.6,2+rnd()*4]);
+function sNet(st){
+  R(0,0,W,H,'#080c1c');stars(st,H);
+  const gx=96,gy=52,r=26;oval(gx,gy,r,r,'#1a4a8a');
+  for(const [lon,lat,s] of LAND){const a=lon+st*.5,x=Math.sin(a)*Math.cos(lat)*r,z=Math.cos(a);if(z>0)oval(gx+x,gy+Math.sin(lat)*r,s*z,s*.7,'#3a9a4a');}
+  alpha(.2,()=>oval(gx-8,gy-10,10,8,'#ffffff'));
+  crt(8,64,st,(x,y)=>{txt('MP3',x+12,y+6,'#6af08a',1);});
+  const phones=[[160,20],[170,70],[20,20],[140,94]];
+  phones.forEach(([px,py],i)=>{R(px-4,py-7,9,14,'#1a1a1a');R(px-3,py-5,7,10,'#30a0e8');P(px,py+6,'#6a6a6a');
+    const u=((st*.6+i*.25)%1);const sx=23,sy=66;const x=sx+(px-sx)*u,y=sy+(py-sy)*u-Math.sin(Math.PI*u)*20;if(st>1)note(x-3,y-3,NOTE_COLS[i]);});
+  const e=(st-1)/.25,n=Math.floor(e),k=((n%8)+8)%8,on=st>1&&st<13.2;
+  if(on)step('l',n,()=>{if(k===0||k===5)SND.kick(0,.6);if(k===4)SND.snare(0,.2);SND.hat(0,false,.05);if(k===0)[[262,330,392,494],[220,262,330,392],[175,220,262,330],[196,247,294,349]][Math.floor(n/8)%4].forEach((f,i)=>SND.piano(f,1.8,.07,{filt:['lowpass',1500,1],delay:i*.02}));});
+  label('MP3 + INTERNET + STREAMING',96,98,'#ffe27a');
+}
+/* crear en casa */
+const CLIPS=[[0,0,20,'#e83030'],[1,20,30,'#30a0e8'],[2,40,20,'#e8c040'],[0,20,40,'#e83030'],[3,50,20,'#40c060'],[1,50,30,'#30a0e8'],[2,60,20,'#e8c040']];
+function sCreate(st){
+  bedroom(st,'#2a3a50');
+  R(20,64,120,4,'#6a4a2a');R(24,68,4,18,'#4a2e18');R(132,68,4,18,'#4a2e18');
+  R(44,58,50,6,'#2a2a30');R(48,30,42,28,'#2a2a30');R(50,32,38,24,'#101018');
+  const nc=Math.floor(clamp((st-1)/6)*CLIPS.length);for(let r=0;r<4;r++)R(50,34+r*5,38,1,'#1e1e28');
+  for(let i=0;i<nc;i++){const [row,x0,w,c]=CLIPS[i];R(51+x0*.4,35+row*5,w*.4,4,c);}
+  const ph=((st-1)%3)/3;R(51+ph*36,33,1,22,'#ffffff');
+  R(104,46,4,18,'#3a3a3a');oval(106,44,3,4,'#8a8a90');
+  person(118,94,2,true,{pal:TEEN,wear:'shirt',phones:true,hands:st>8?[[12,-24],[10,-8]]:[[16,-13+((st*6|0)%2)],[14,-13]],mouth:st>5&&st<8&&(st%.5)<.3});
+  if(st>8.5){for(let k=0;k<6;k++){const u=((st-8.5)*.5+k/6)%1;alpha(1-u,()=>note(80+u*80,40-u*30+Math.sin(u*6+k)*4,NOTE_COLS[k%5]));}label('COMPARTIR >>',160,52,'#6af08a');}
+  const e=(st-1)/.23,n=Math.floor(e),k=((n%8)+8)%8,on=st>1&&st<13.3,lay=Math.floor(clamp((st-1)/6)*4);
+  if(on)step('c',n,()=>{
+    if(lay>=0&&(k===0||k===3))SND.kick(0,.7);if(lay>=1&&(k===2||k===6))SND.clap();if(lay>=1)SND.hat(0,false,.05);
+    if(lay>=2&&k%2===0)pluck([98,98,131,117][Math.floor(n/8)%4],{dur:.4,hl:.2,lp:700,peak:.4});
+    if(lay>=3)tone({type:'triangle',f:[523,587,659,784,659,587,523,440][k],peak:.08,dur:.2,lp:3000});
+    if(st>5&&st<8&&k%2===0)sing([392,440,392,330][(n/2|0)%4],.4,'a',{peak:.12});});
+  label('HOY: CUALQUIERA PUEDE CREAR',96,4,'#ffe27a');
+}
+/* final: de vuelta al fuego */
+const FAR=mkRidge(62,[[7,.05,0],[5,.13,1],[2,.31,0]]),NEAR=mkRidge(76,[[5,.07,2],[3,.19,0]]);
+const MEL=[392,330,294,330,262,294,330,392];
+function sFinal(st){
+  sky(NIGHT);stars(st);moon(162,18);ridge(FAR,'#1f1a38');ridge(NEAR,'#15122a');R(0,90,W,18,'#241a14');R(0,90,W,1,'#3a2a1c');
+  fire(96,91,1.1,st);
+  const b=Math.floor(st/.6),ph=b%4,phase=(st/.6)%1,on=st>1&&st<14.5;
+  const clap=on&&b%2===1&&phase<.3;
+  person(36,91,2,false,{pal:CAVE,hands:clap?[[12,-12],[12,-12]]:[[12,-15],[12,-9]],mouth:on&&ph<3&&phase<.8});
+  person(58,91,1.5,false,{pal:CAVE2,hands:[[9,-7],[7,-7]],mouth:on&&ph<3&&phase<.8,blink:(st%3)<.1});
+  person(126,91,2,true,{pal:TEEN,wear:'shirt',phones:true,hands:clap?[[12,-12],[12,-12]]:[[12,-15],[12,-9]],mouth:on&&ph<3&&phase<.8});
+  person(150,91,2,true,{pal:NERD,wear:'shirt',hands:clap?[[12,-12],[12,-12]]:[[12,-15],[12,-9]]});
+  if(on){if(ph<3)step('h',b,()=>{const f=MEL[(Math.floor(b/4)*3+ph)%MEL.length]*.75;SND.hum(f);sing(f*2,.55,'a',{peak:.08});});
+    step('r',b,()=>{b%2?SND.clap():SND.stomp();if(b%4===0)tone({f:98,peak:.08,dur:2.3,att:.4,sus:true,rel:.6,lp:600,type:'sawtooth'});});}
+  const [mx,my]=hw(36,91,2,false,10,-15);notesFrom(mx,my,st,.6,2.4,1,1,14);
+  const [tx,ty]=hw(126,91,2,true,10,-15);notesFrom(tx,ty,st,.6,2.4,-1,1.3,14);
+}
+
+iniciar({num:11,prev:'capitulo10.html',next:null,escenas:[
+  {dur:8,draw:sTitle,name:'Inicio',title:['CAPÍTULO 11','LA ERA<br>DIGITAL'],
+   text:'En los años 80 llegaron las computadoras personales. Y el sonido empezó a guardarse de una forma nueva: como NÚMEROS.'},
+  {dur:14,draw:sDigital,name:'Sonido en números',
+   text:'Para DIGITALIZAR un sonido se mide su onda muchas veces por segundo. El CD (1982) lo hacía 44.100 veces por segundo; luego esos números vuelven a convertirse en sonido.'},
+  {dur:14,draw:sMidi,name:'MIDI',
+   text:'En 1983 nació el MIDI, un idioma para que instrumentos y computadoras hablen entre sí. Cajas de ritmos, samplers y tocadiscos impulsaron el HIP HOP y la música ELECTRÓNICA.'},
+  {dur:14,draw:sNet,name:'Internet',
+   text:'En los 90, el MP3 comprimió la música para viajar por INTERNET. Hoy, con el STREAMING, millones de canciones caben en un bolsillo.'},
+  {dur:14,draw:sCreate,name:'Todos creadores',
+   text:'Hoy cualquiera puede componer, grabar y compartir desde su cuarto. Una canción hecha en casa puede escucharse al otro lado del planeta.'},
+  {dur:16,draw:sFinal,name:'Fin',amb:fireAmb,title:['FIN','EL ORIGEN<br>DE LA MÚSICA'],
+   text:'Pero en el fondo no ha cambiado tanto: como junto a aquel primer fuego, la música sigue sirviendo para UNIRNOS. Y el primer instrumento sigue siendo... la VOZ.'}
+]});
+</script>
+</body>
+</html>

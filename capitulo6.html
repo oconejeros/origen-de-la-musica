@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Origen de la Música · Cap. 6</title>
+</head>
+<body>
+<script src="motor.js"></script>
+<script>
+/* ===================== CAPÍTULO 6 · MONJES Y PENTAGRAMAS ===================== */
+const MONK={skin:'#e0b090',shade:'#b08060',cloth:'#5a4030',clothL:'#3a2a1a'};
+const MONK2={skin:'#c89070',shade:'#9a6a4a',cloth:'#4a3a2a',clothL:'#2a1e14'};
+const BENE={skin:'#e0b090',shade:'#b08060',cloth:'#26222a',clothL:'#16141a'};
+const JUG={skin:'#e0a878',shade:'#b07850',hair:'#6a3a1a',cloth:'#b03030',clothL:'#e8c040',legs:'#3a6a3a',hatc:'#3a6a3a'};
+const TRO={skin:'#d8a070',shade:'#a87040',hair:'#2a1a10',cloth:'#3a5aa8',clothL:'#e8e0c0',legs:'#6a2a5a'};
+const TRO2={skin:'#e8b890',shade:'#b88860',hair:'#c89040',cloth:'#6a8a3a',clothL:'#e8e0c0'};
+
+srand(66);
+const NIGHT=['#070818','#0c0f28','#141838','#1c2044','#262a50'],DAY=['#4a80c8','#6096d4','#80acdc','#a0c4e4','#c0d8ec'];
+const HILLM=mkRidge(70,[[4,.03,1],[2,.1,2]]);
+function monastery(t,cols=NIGHT,bell=0){
+  sky(cols);if(cols===NIGHT){stars(t,50);moon(28,14);}
+  ridge(HILLM,'#16162a');
+  R(36,58,86,34,'#4a4658');for(let i=0;i<14;i++)R(36+i*3,58-i,86-i*6,1,'#3a3648');
+  R(120,24,22,68,'#524e62');for(let i=0;i<10;i++)R(120+i,24-i,22-2*i,1,'#3a3648');
+  R(125,30,12,12,'#14121c');const bx=131+Math.sin(bell)*2;oval(bx,36,3,3,'#c8a040');R(bx-4,38,8,2,'#c8a040');line(131,30,bx,33,'#6a6a6a');
+  for(const wx of [46,62,78,94,108])for(const wy of [66]){R(wx,wy,4,8,'#ffcf70');P(wx,wy,'#4a4658');P(wx+3,wy,'#4a4658');alpha(.12+.04*Math.sin(t*3+wx),()=>oval(wx+2,wy+4,7,7,'#ffcf70'));}
+  R(126,50,10,12,'#ffcf70');R(126,50,1,1,'#524e62');
+  R(74,78,10,14,'#2a1e18');oval(79,78,5,3,'#2a1e18');
+  R(0,92,W,16,'#1c1c26');R(0,92,W,1,'#2a2a36');
+}
+function church(t){
+  R(0,0,W,H,'#221e2a');
+  for(let k=0;k<5;k++){const x=k*48;R(x-4,20,8,76,'#3a3444');R(x-3,20,1,76,'#4a4454');
+    for(let i=0;i<24;i++){P(x+4+i,20-Math.sqrt(i)*3.5,'#3a3444');P(x+44-i,20-Math.sqrt(i)*3.5,'#3a3444');}}
+  const cx=160,cy=30;oval(cx,cy,13,13,'#14101a');
+  const cols=['#c83030','#2a5ac8','#e8b830','#3a9a4a','#8a3ab0','#2a5ac8'];
+  for(let k=0;k<6;k++){const a=k/6*Math.PI*2+.3;alpha(.8+.2*Math.sin(t*2+k),()=>oval(cx+Math.cos(a)*7,cy+Math.sin(a)*7,4,4,cols[k]));}
+  oval(cx,cy,3,3,'#e8b830');alpha(.08,()=>oval(cx,cy+30,40,50,'#c8a0ff'));
+  R(146,74,34,20,'#4a3a2a');R(146,74,34,2,'#e8dcc0');for(const x of [150,160,170])candle(x,68,t+x);
+  R(0,94,W,14,'#2a2430');for(let x=0;x<W;x+=16)R(x,94,1,14,'#221e2a');
+}
+function parchment(x,y,w,h){R(x,y,w,h,'#e8d8b0');R(x,y,w,1,'#c8b890');R(x,y+h-1,w,1,'#b8a880');R(x,y,1,h,'#c8b890');R(x+w-1,y,1,h,'#b8a880');for(let k=0;k<12;k++)P(x+3+(k*37)%(w-6),y+3+(k*23)%(h-6),'#d8c8a0');}
+/* ---- escenas ---- */
+function sTitle(st){
+  const b=Math.floor(st/2.2);monastery(st,NIGHT,Math.sin(st*Math.PI/1.1)*1.2);
+  if(st>.5)step('b',b,()=>SND.bell(196,3,.22));
+  const x=150+Math.max(0,8-st)*4;person(x,94,1.2,true,{pal:MONK,wear:'robe',hood:true,hands:[[10,-10],[9,-10]]});
+  candle(x-3,82,st);
+}
+const CHANT=[[147,1,'i'],[165,1,'i'],[175,1,'e'],[165,1,'e'],[147,2,'e'],[131,1,'i'],[147,1,'i'],[175,1,'o'],[196,1,'e'],[175,1,'i'],[165,1,'o'],[147,3,'o']];
+function chantAt(st,beat,start){const bt=Math.floor((st-start)/beat);let acc=0;for(let i=0;i<CHANT.length;i++){if(bt>=acc&&bt<acc+CHANT[i][1])return [i,bt,bt===acc];acc+=CHANT[i][1];}return [-1,bt,false];}
+function sChant(st){
+  church(st);
+  const [ni,bt,start]=chantAt(st%8.6,.5,.8),on=ni>=0&&st<13.2,rep=Math.floor(st/8.6);
+  [[34,MONK],[62,MONK2],[90,MONK],[118,MONK2]].forEach(([x,p],k)=>{person(x,94,2,false,{pal:p,wear:'robe',hood:true,hands:[[12,-11],[11,-10]],mouth:on&&(st*2.4+k)%1<.7});
+    const [bx,by]=hw(x,94,2,false,12,-11);R(bx,by-2,5,4,'#6a2a1a');R(bx+1,by-2,3,3,'#e8d8b0');});
+  if(on&&start)step('c',rep*100+bt,()=>{const [f,d,v]=CHANT[ni];for(const dt of [0,.4,-.5])sing(f*(1+dt/100),d*.5*.95,v,{peak:.09,vibD:.006});});
+  notesFrom(90,40,st,1,3,1,1,13);
+  label('UNA SOLA MELODIA, A UNA VOZ',96,4);
+}
+/* neumas */
+const NEU=[[0,'i'],[1,'p'],[2,'v'],[1,'c'],[0,'p'],[-1,'i'],[0,'v'],[2,'p'],[3,'c'],[2,'i'],[1,'c'],[0,'i']];
+function neume(x,y,k,c){if(k==='i'){R(x,y,2,2,c);}else if(k==='v'){R(x,y,2,2,c);R(x+1,y-4,1,4,c);}else if(k==='p'){R(x,y+2,2,2,c);line(x+1,y+2,x+3,y-2,c);R(x+3,y-2,2,2,c);}else{line(x,y+2,x+2,y-1,c);line(x+2,y-1,x+4,y+2,c);}}
+function sNeumes(st){
+  R(0,0,W,H,'#1e1620');alpha(.35,()=>oval(96,54,90,50,'#6a4a2a'));
+  parchment(16,10,160,82);
+  txt('KY- RI- E    E- LE- I- SON',26,70,'#5a3a1a');
+  R(22,20,10,10,'#b03030');R(24,22,6,6,'#e8b830');txt('K',26,23,'#b03030');
+  const n=Math.floor(clamp((st-1)/8)*NEU.length);
+  NEU.forEach(([p,k],i)=>{if(i<n)neume(28+i*11,52-p*5,k,'#2a1a10');});
+  if(n<NEU.length&&st>1){const [p]=NEU[n],qx=28+n*11,qy=52-p*5;line(qx+2,qy,qx+16,qy-22,'#f0ece0');line(qx+3,qy,qx+17,qy-22,'#c8c0b0');step('q',n,()=>{noise('highpass',4000,2,.08,.12);sing(CHANT[n][0],.45,CHANT[n][2],{peak:.1});});}
+  if(st>9.5)alpha(st-9.5,()=>{label('SUBE O BAJA... PERO CUANTO?',96,96,'#ffe27a');for(let i=0;i<3;i++)txt('?',60+i*36,30+Math.sin(st*3+i)*2,'#b03030');});
+}
+/* Guido */
+const GN=[[262,'UT','u'],[294,'RE','e'],[330,'MI','i'],[349,'FA','a'],[392,'SOL','o'],[440,'LA','a']];
+function sGuido(st){
+  R(0,0,W,H,'#1e1620');alpha(.35,()=>oval(110,54,90,50,'#6a4a2a'));
+  person(4,100,2,false,{pal:BENE,wear:'robe',hood:true,hands:[[20,-16],[10,-9]],blink:(st%3)<.1});
+  parchment(46,12,140,80);
+  const L=[40,46,52,58],LC=['#2a1a10','#d8a820','#2a1a10','#c03030'];
+  L.forEach((y,k)=>{const w=clamp((st-.8-k*.25)/.6);R(54,y,124*w,1,LC[k]);});
+  txt('C',50,44,'#d8a820');txt('F',50,56,'#c03030');
+  GN.forEach(([f,s,v],i)=>{const t0=2.5+i*1.1;if(st<t0)return;const x=62+i*18,y=57-i*3;
+    R(x,y-1,4,3,'#1a1a1a');const lit=st-t0<.6;
+    txt(s,x+2,68,lit?'#c03030':'#5a3a1a',1);if(lit)alpha(1-(st-t0)/.6,()=>ring(x+2,y,3+(st-t0)*10,'#e8b830'));
+    step('g'+i,1,()=>sing(f,.9,v,{peak:.2}));});
+  if(st>10){const a=clamp(st-10);alpha(a,()=>{line(58,70,70,66,'#c03030');txt('DO',64,76,'#c03030',1);});}
+  if(st>11.5){alpha(clamp(st-11.5),()=>{R(170,38,4,3,'#1a1a1a');txt('SI',172,68,'#c03030',1);});step('si',1,()=>sing(494,.9,'i',{peak:.2}));}
+  if(st>12.3)step('do',1,()=>sing(523,1.1,'o',{peak:.2}));
+  label('GUIDO D\'AREZZO - HACIA 1025',116,2,'#ffb347');
+}
+/* juglares y polifonía */
+const JMEL=[[392,2],[440,1],[392,1],[349,2],[330,2],[294,2],[330,1],[349,1],[392,4]];
+const ORG=[[147,8],[165,8],[147,8],[131,8]],UPP=[440,494,523,494,440,392,440,494,523,587,523,494,440,392,349,392,440,392,349,330,294,330,349,392,440,392,349,330,294,262,294,294];
+function castle(t){
+  sky(DAY);sun(30,14,5,'#fff8d0','#fff0a0');
+  R(0,40,W,56,'#8a8478');for(let x=0;x<W;x+=10)R(x,34,6,6,'#8a8478');for(let y=46;y<96;y+=6)for(let x=(y%12?0:5);x<W;x+=10)R(x,y,9,1,'#7a7468');
+  R(150,14,28,82,'#7a7468');for(let x=150;x<178;x+=8)R(x,8,5,6,'#7a7468');R(160,30,6,10,'#2a2420');
+  for(const [bx,c] of [[30,'#b03030'],[70,'#3a5aa8'],[110,'#e8c040']]){line(bx,20,bx,40,'#4a3a2a');for(let i=0;i<8;i++)R(bx+1,20+i,7-i+Math.sin(t*4+i)*1,1,c);}
+  R(0,94,W,14,'#9a8a60');R(0,94,W,1,'#b0a070');
+}
+function sJuglar(st){
+  castle(st);
+  const poly=st>6.2,beat=.3,bt=Math.floor(st/beat);
+  // juglar con laúd
+  person(26,100,2,false,{pal:JUG,wear:'tunic',hat:'cap',hands:[[16,-12],[22,-17]],lift:poly?0:Math.round(Math.abs(Math.sin(st*4))),mouth:!poly&&st>.8&&(st%.6)<.4});
+  const [lx,ly]=hw(26,100,2,false,13,-10);oval(lx,ly,6,4,'#a8703a');oval(lx,ly,2,1.5,'#3a2010');line(lx+5,ly-2,lx+22,ly-12,'#6a4428');line(lx+22,ly-12,lx+25,ly-9,'#6a4428');
+  if(st>.8&&st<6){let acc=0,pos=Math.floor((st-.8)/.3);for(const [f,d] of JMEL){if(pos===acc){step('j',pos,()=>{sing(f,d*.3*.95,'a',{peak:.17});pluck(f/2,{dur:.9,hl:.3,lp:2500,peak:.3});pluck(f*.75,{dur:.9,hl:.3,lp:2500,peak:.2,delay:.15});});}acc+=d;}}
+  // polifonía
+  person(112,100,2,true,{pal:TRO,wear:'tunic',hands:[[12,-12],[9,-8]],mouth:poly&&st<13.2});
+  person(146,100,2,true,{pal:TRO2,wear:'tunic',hands:[[12,-13],[9,-8]],mouth:poly&&st<13.2&&(st%.6)<.45});
+  if(poly&&st<13.2){
+    const pb=Math.floor((st-6.2)/beat);
+    step('u',pb,()=>{if(pb<UPP.length)sing(UPP[pb],beat*.95,'a',{peak:.15,att:.03});});
+    let acc=0;for(const [f,d] of ORG){if(pb===acc)step('o',pb,()=>sing(f,d*beat*.98,'o',{peak:.17}));acc+=d;}
+    for(let k=0;k<12;k++){const age=(st-6.2)-k*.55;if(age<0||age>2.2)continue;alpha(1-age/2.2,()=>{note(120-age*8,48-age*12+Math.sin(age*4)*3,'#9fd3ff');note(150-age*8,44-age*14-Math.sin(age*6)*3,'#ffa0c8');});}
+  }
+  label(poly?'POLIFONIA: VARIAS VOCES A LA VEZ':'JUGLARES Y TROVADORES',96,20);
+}
+function sEnd(st){
+  R(0,0,W,H,'#1a1418');for(let y=0;y<60;y+=8)for(let x=(y%16?0:6);x<W;x+=12)R(x,y,11,7,'#241c22');
+  R(40,78,112,4,'#5a3a22');R(46,82,4,20,'#4a2e1a');R(142,82,4,20,'#4a2e1a');R(0,100,W,8,'#2a2024');
+  line(70,78,120,70,'#4a2e1a');parchment(72,62,46,14);for(let r=0;r<3;r++)R(76,65+r*3,Math.min(38,Math.max(0,(st-1-r*2.5)*6)),1,'#3a2a1a');
+  person(122,100,2,true,{pal:MONK,wear:'robe',hood:true,hands:[[14,-18+Math.sin(st*8)],[12,-15]]});
+  candle(58,72,st);
+  const [qx,qy]=hw(122,100,2,true,14,-18+Math.sin(st*8));line(qx,qy,qx+3,qy-8,'#f0ece0');
+  darkness(.55,[[60,70,60]]);
+  if(st>1)step('sc',Math.floor(st*3),()=>noise('highpass',4500,2,.05,.1));
+}
+
+iniciar({num:6,prev:'capitulo5.html',next:'capitulo7.html',escenas:[
+  {dur:8,draw:sTitle,name:'Inicio',title:['CAPÍTULO 6','MONJES Y<br>PENTAGRAMAS'],
+   text:'En la EDAD MEDIA, los monasterios eran centros de saber. Allí, día y noche, los monjes rezaban... cantando.'},
+  {dur:14,draw:sChant,name:'Canto gregoriano',eco:[.55,.13,.6],
+   text:'El CANTO GREGORIANO: una sola melodía, sin instrumentos, cantada en latín. Había cientos de cantos... ¡y se aprendían de memoria! Podía tomar unos diez años.'},
+  {dur:13,draw:sNeumes,name:'Neumas',eco:[.3,.13,.4],
+   text:'Para recordarlos, empezaron a dibujar NEUMAS sobre el texto: signos que indicaban si la voz subía o bajaba... pero no cuánto.'},
+  {dur:15,draw:sGuido,name:'Guido d\'Arezzo',eco:[.3,.13,.4],
+   text:'Hacia el año 1025, el monje GUIDO D’AREZZO colocó los signos sobre LÍNEAS, y nombró las notas con sílabas de un himno: UT, RE, MI, FA, SOL, LA. Más tarde UT pasó a ser DO y se sumó el SI.'},
+  {dur:14,draw:sJuglar,name:'Juglares y polifonía',
+   text:'Fuera de las iglesias, JUGLARES y TROVADORES cantaban historias de amor y aventuras. Y en París, hacia 1200, se cantaron VARIAS MELODÍAS A LA VEZ: la POLIFONÍA.'},
+  {dur:9,draw:sEnd,name:'Continuará',title:['PRÓXIMO: CAPÍTULO 7','IMPRENTA, ÓPERA<br>Y VIOLINES'],
+   text:'Hasta entonces, cada partitura se copiaba a mano, nota por nota... hasta que llegó una máquina que lo cambió todo. Continuará.'}
+]});
+</script>
+</body>
+</html>
